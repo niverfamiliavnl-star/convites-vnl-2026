@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#5a3578">
+    <meta name="description" content="Convite de aniversário de Hannah Lis — 7 anos.">
+    <title>Hannah Lis faz 7 anos</title>
+    <link rel="stylesheet" href="../shared/base.css">
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body class="hannah-body">
+    <a class="skip-link" href="#informacoes">Ir para as informações</a>
+
+    <section class="palace-intro" data-intro aria-label="Entrada do convite">
+      <div class="palace-sky" aria-hidden="true">
+        <span class="star star--one">✦</span><span class="star star--two">✧</span><span class="star star--three">✦</span>
+      </div>
+      <div class="palace" aria-hidden="true">
+        <div class="palace__tower palace__tower--left"><i></i><i></i></div>
+        <div class="palace__center"><span class="palace__crown">♕</span><div class="palace__door"></div></div>
+        <div class="palace__tower palace__tower--right"><i></i><i></i></div>
+      </div>
+      <div class="intro-copy">
+        <span class="eyebrow">Uma celebração real</span>
+        <h1>Hannah Lis<br><em>faz 7 anos</em></h1>
+        <p>As portas do palácio estão prestes a se abrir.</p>
+        <button class="primary-button intro-enter" type="button" data-enter>Entrar no Palácio</button>
+        <button class="intro-skip" type="button" data-skip>Pular introdução</button>
+      </div>
+    </section>
+
+    <main class="hannah-main" data-content tabindex="-1">
+      <section class="story-banner" aria-labelledby="story-title">
+        <span class="story-flourish" aria-hidden="true">❦</span>
+        <p class="eyebrow">Coragem · propósito · graça</p>
+        <h2 id="story-title">Para um momento como este</h2>
+        <p>Assim como a Rainha Ester, Hannah nos lembra que coragem e delicadeza podem caminhar juntas.</p>
+      </section>
+
+      <section class="event-card" id="informacoes" aria-labelledby="event-title">
+        <span class="eyebrow">Você é nosso convidado</span>
+        <h2 id="event-title">Venha celebrar com Hannah</h2>
+        <div class="event-grid">
+          <div class="event-detail"><span>Data</span><strong data-event-date>26 de setembro de 2026</strong></div>
+          <div class="event-detail"><span>Horário</span><strong data-event-time>14h</strong></div>
+          <div class="event-detail"><span>Local</span><strong data-event-venue>Sítio Jalisco</strong></div>
+          <div class="event-detail"><span>Prepare-se</span><strong data-event-note>Traga sua roupa de banho</strong></div>
+        </div>
+        <a class="map-link" data-maps-link href="https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A">Abrir no Google Maps <span aria-hidden="true">↗</span></a>
+      </section>
+
+      <section class="rsvp-card" data-rsvp-region aria-labelledby="rsvp-title">
+        <span class="eyebrow">Confirmação</span>
+        <h2 id="rsvp-title">Sua presença fará parte desta história</h2>
+        <p class="rsvp-lede">Confirme até <span data-event-cutoff>15 de setembro de 2026, às 23h59</span>.</p>
+        <p class="rsvp-status" data-rsvp-status role="status" aria-live="polite">Verificando a disponibilidade da confirmação…</p>
+        <form class="rsvp-form" data-rsvp-form method="post" target="rsvp-transport">
+          <input type="hidden" name="request_id">
+          <input type="hidden" name="evento_id">
+          <input type="hidden" name="origem">
+          <div class="field"><label for="hannah-nome">Nome do responsável ou família</label><input id="hannah-nome" name="nome_responsavel" autocomplete="name" minlength="2" maxlength="120" required></div>
+          <div class="field"><label for="hannah-telefone">Telefone ou WhatsApp</label><input id="hannah-telefone" name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(85) 99999-9999" maxlength="24" required><small>Informe DDD e número.</small></div>
+          <fieldset class="presence-options field"><legend>Vocês estarão presentes?</legend><label class="presence-option"><input type="radio" name="presenca" value="SIM" required> Sim, estaremos</label><label class="presence-option"><input type="radio" name="presenca" value="NAO" required> Não poderemos ir</label></fieldset>
+          <div class="field" data-quantity-field hidden><label for="hannah-quantidade">Quantidade total de pessoas</label><input id="hannah-quantidade" name="quantidade" type="number" min="1" max="20" inputmode="numeric"></div>
+          <div class="field"><label for="hannah-acompanhantes">Acompanhantes <small>(opcional)</small></label><textarea id="hannah-acompanhantes" name="acompanhantes" maxlength="500" placeholder="Nomes dos acompanhantes"></textarea></div>
+          <div class="field"><label for="hannah-observacao">Observação <small>(opcional)</small></label><textarea id="hannah-observacao" name="observacao" maxlength="1000"></textarea></div>
+          <div class="honeypot" aria-hidden="true"><label for="hannah-site">Não preencha este campo</label><input id="hannah-site" name="website" tabindex="-1" autocomplete="off"></div>
+          <p class="privacy" data-privacy>Seus dados serão utilizados exclusivamente para organizar as confirmações deste evento.</p>
+          <div class="form-actions"><button class="primary-button" type="submit">Enviar confirmação</button></div>
+        </form>
+        <iframe class="rsvp-transport" data-rsvp-frame name="rsvp-transport" title="Processamento da confirmação"></iframe>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102b4c">
+    <meta name="description" content="Convite de aniversário de Heitor Noah — 10 anos.">
+    <title>Heitor Noah faz 10 anos</title>
+    <link rel="stylesheet" href="../shared/base.css">
+    <link rel="stylesheet" href="./style.css">
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body class="noah-body">
+    <a class="skip-link" href="#informacoes">Ir para as informações</a>
+    <header class="mission-hero">
+      <div class="mission-grid" aria-hidden="true"></div>
+      <div class="mission-heading">
+        <span class="eyebrow">Efésios 6 · Missão especial</span>
+        <h1>Heitor Noah<br><em>faz 10 anos</em></h1>
+        <p>Equipe a Armadura de Deus. Não há ordem certa — cada peça prepara você para a missão.</p>
+      </div>
+
+      <section class="loadout" aria-labelledby="loadout-title">
+        <div class="loadout__topline">
+          <h2 id="loadout-title">Escolha os equipamentos</h2>
+          <strong data-progress aria-live="polite">0 / 6</strong>
+        </div>
+        <div class="loadout__bar" aria-hidden="true"><span data-progress-bar></span></div>
+        <div class="gear-grid">
+          <button class="gear" type="button" data-gear="Capacete da Salvação" data-message="Proteja seus pensamentos." aria-pressed="false">
+            <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 31a18 18 0 0 1 36 0v9H38l-6 9-6-9H14Z"/><path d="M19 31h26"/></svg><span><b>Capacete da Salvação</b><small>Proteja seus pensamentos.</small></span>
+          </button>
+          <button class="gear" type="button" data-gear="Couraça da Justiça" data-message="Escolha o que é certo." aria-pressed="false">
+            <svg viewBox="0 0 64 64" aria-hidden="true"><path d="m20 12 12 5 12-5 7 10-8 30H21L13 22Z"/><path d="M32 17v35"/></svg><span><b>Couraça da Justiça</b><small>Escolha o que é certo.</small></span>
+          </button>
+          <button class="gear" type="button" data-gear="Cinturão da Verdade" data-message="Permaneça na verdade." aria-pressed="false">
+            <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M9 25h46v15H9z"/><path d="M25 22h14v21H25z"/><circle cx="32" cy="32" r="3"/></svg><span><b>Cinturão da Verdade</b><small>Permaneça na verdade.</small></span>
+          </button>
+          <button class="gear" type="button" data-gear="Escudo da Fé" data-message="Mantenha a fé." aria-pressed="false">
+            <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8 51 16v15c0 12-8 21-19 26C21 52 13 43 13 31V16Z"/><path d="M32 17v29M22 29h20"/></svg><span><b>Escudo da Fé</b><small>Mantenha a fé.</small></span>
+          </button>
+          <button class="gear" type="button" data-gear="Espada do Espírito" data-message="A Palavra de Deus." aria-pressed="false">
+            <svg viewBox="0 0 64 64" aria-hidden="true"><path d="m48 8 7 7-27 29-8-8Z"/><path d="m17 33 14 14M17 42l-8 8 5 5 8-8"/></svg><span><b>Espada do Espírito</b><small>A Palavra de Deus.</small></span>
+          </button>
+          <button class="gear" type="button" data-gear="Sandálias do Evangelho" data-message="Leve as boas-novas." aria-pressed="false">
+            <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M16 12v25c0 9 7 15 16 15h14c5 0 8-3 8-7 0-5-5-7-11-7h-9V18Z"/><path d="M16 29h18M24 18h10"/></svg><span><b>Sandálias do Evangelho</b><small>Leve as boas-novas.</small></span>
+          </button>
+        </div>
+        <p class="mission-message" data-mission-message role="status" aria-live="polite">Toque em qualquer item para começar.</p>
+        <div class="mission-actions">
+          <button class="primary-button mission-complete" type="button" data-complete hidden>Missão completa — ver convite</button>
+          <button class="secondary-button" type="button" data-skip-mission>Pular missão</button>
+        </div>
+      </section>
+    </header>
+
+    <main class="noah-main" data-content tabindex="-1">
+      <section class="mission-complete-banner" aria-label="Missão completa">
+        <span aria-hidden="true">VI</span>
+        <div><p class="eyebrow">Missão completa</p><h2>Agora, vamos celebrar!</h2></div>
+      </section>
+
+      <section class="event-card" id="informacoes" aria-labelledby="event-title">
+        <span class="eyebrow">Convocação oficial</span><h2 id="event-title">Você faz parte desta missão</h2>
+        <div class="event-grid">
+          <div class="event-detail"><span>Data</span><strong data-event-date>26 de setembro de 2026</strong></div>
+          <div class="event-detail"><span>Horário</span><strong data-event-time>14h</strong></div>
+          <div class="event-detail"><span>Base da missão</span><strong data-event-venue>Sítio Jalisco</strong></div>
+          <div class="event-detail"><span>Equipamento extra</span><strong data-event-note>Traga sua roupa de banho</strong></div>
+        </div>
+        <a class="map-link" data-maps-link href="https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A">Abrir rota da missão <span aria-hidden="true">↗</span></a>
+      </section>
+
+      <section class="rsvp-card" data-rsvp-region aria-labelledby="rsvp-title">
+        <span class="eyebrow">Confirmação</span><h2 id="rsvp-title">Confirme sua participação</h2>
+        <p class="rsvp-lede">Responda até <span data-event-cutoff>15 de setembro de 2026, às 23h59</span>.</p>
+        <p class="rsvp-status" data-rsvp-status role="status" aria-live="polite">Verificando a disponibilidade da confirmação…</p>
+        <form class="rsvp-form" data-rsvp-form method="post" target="rsvp-transport">
+          <input type="hidden" name="request_id"><input type="hidden" name="evento_id"><input type="hidden" name="origem">
+          <div class="field"><label for="noah-nome">Nome do responsável ou família</label><input id="noah-nome" name="nome_responsavel" autocomplete="name" minlength="2" maxlength="120" required></div>
+          <div class="field"><label for="noah-telefone">Telefone ou WhatsApp</label><input id="noah-telefone" name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(85) 99999-9999" maxlength="24" required><small>Informe DDD e número.</small></div>
+          <fieldset class="presence-options field"><legend>Vocês estarão presentes?</legend><label class="presence-option"><input type="radio" name="presenca" value="SIM" required> Sim, estaremos</label><label class="presence-option"><input type="radio" name="presenca" value="NAO" required> Não poderemos ir</label></fieldset>
+          <div class="field" data-quantity-field hidden><label for="noah-quantidade">Quantidade total de pessoas</label><input id="noah-quantidade" name="quantidade" type="number" min="1" max="20" inputmode="numeric"></div>
+          <div class="field"><label for="noah-acompanhantes">Acompanhantes <small>(opcional)</small></label><textarea id="noah-acompanhantes" name="acompanhantes" maxlength="500" placeholder="Nomes dos acompanhantes"></textarea></div>
+          <div class="field"><label for="noah-observacao">Observação <small>(opcional)</small></label><textarea id="noah-observacao" name="observacao" maxlength="1000"></textarea></div>
+          <div class="honeypot" aria-hidden="true"><label for="noah-site">Não preencha este campo</label><input id="noah-site" name="website" tabindex="-1" autocomplete="off"></div>
+          <p class="privacy" data-privacy>Seus dados serão utilizados exclusivamente para organizar as confirmações deste evento.</p>
+          <div class="form-actions"><button class="primary-button" type="submit">Enviar confirmação</button></div>
+        </form>
+        <iframe class="rsvp-transport" data-rsvp-frame name="rsvp-transport" title="Processamento da confirmação"></iframe>
+      </section>
+    </main>
+  </body>
+</html>
