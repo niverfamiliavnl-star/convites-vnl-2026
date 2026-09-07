@@ -120,7 +120,7 @@ function setupDashboard_(spreadsheet) {
     ['Pessoas — Hannah', '=SUMIFS(CONSOLIDADO!F2:F,CONSOLIDADO!E2:E,"SIM",CONSOLIDADO!I2:I,"HANNAH")'],
     ['Pessoas — Noah', '=SUMIFS(CONSOLIDADO!F2:F,CONSOLIDADO!E2:E,"SIM",CONSOLIDADO!I2:I,"NOAH")'],
     ['Pessoas — Vagner', '=SUMIFS(CONSOLIDADO!F2:F,CONSOLIDADO!E2:E,"SIM",CONSOLIDADO!I2:I,"VAGNER")'],
-    ['Última atualização', '=IFERROR(MAX(CONSOLIDADO!C2:C),"")']
+    ['Última atualização', '=IF(COUNT(CONSOLIDADO!C2:C)=0,"",MAX(CONSOLIDADO!C2:C))']
   ];
   sheet.getRange('A1:B1').breakApart();
   sheet.getRange(1, 1, labels.length, 2).setValues(labels);

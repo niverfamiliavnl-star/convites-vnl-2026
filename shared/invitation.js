@@ -12,6 +12,9 @@ function populateEventDetails() {
   setText("[data-event-time]", EVENT.timeLabel);
   setText("[data-event-venue]", EVENT.venue);
   setText("[data-event-note]", EVENT.note);
+  setText("[data-event-dress-code]", EVENT.dressCode);
+  setText("[data-event-pool-notice]", EVENT.poolNotice);
+  setText("[data-event-alcohol-notice]", EVENT.alcoholNotice);
   setText("[data-event-cutoff]", EVENT.cutoffLabel);
   setText("[data-event-email]", EVENT.contactEmail);
   setText("[data-privacy]", EVENT.privacyNotice);
@@ -21,7 +24,8 @@ function populateEventDetails() {
     link.target = "_blank";
   });
   document.querySelectorAll("[data-email-link]").forEach((link) => {
-    link.href = `mailto:${EVENT.contactEmail}`;
+    const subject = link.dataset.emailSubject || "Alteração de RSVP — Convites VNL 2026";
+    link.href = `mailto:${EVENT.contactEmail}?subject=${encodeURIComponent(subject)}`;
   });
 }
 
@@ -30,7 +34,8 @@ function setStatus(node, message, tone = "neutral") {
   node.dataset.tone = tone;
 }
 
-function renderClosed(container) {
+function renderClosed(container, origin) {
+  window.dispatchEvent(new CustomEvent("vnl:rsvp:closed", { detail: { origin } }));
   container.innerHTML = `
     <div class="deadline-card" role="status">
       <p><strong>O prazo de confirmação foi encerrado.</strong></p>
@@ -141,24 +146,29 @@ export function initInvitation({ origin }) {
         setFormEnabled(form, true);
         setStatus(status, `Confirmações abertas até ${EVENT.cutoffLabel}.`);
       } else {
-        renderClosed(region);
+        renderClosed(region, origin);
       }
       return;
     }
 
     form.setAttribute("aria-busy", "false");
     if (data.code === "RECORDED" && data.ok) {
+      const presence = form.elements.namedItem("presenca").value;
+      const partySize = presence === "SIM" ? Number(form.elements.namedItem("quantidade").value) : 0;
       form.reset();
       updatePresence();
       setStatus(status, "Resposta registrada. Obrigado por confirmar!", "success");
       setFormEnabled(form, true);
+      window.dispatchEvent(new CustomEvent("vnl:rsvp:recorded", {
+        detail: { origin, presenca: presence, quantidade: partySize },
+      }));
       pendingRequestId = crypto.randomUUID();
       requestInput.value = pendingRequestId;
       return;
     }
 
     if (data.code === "CLOSED") {
-      renderClosed(region);
+      renderClosed(region, origin);
       return;
     }
 

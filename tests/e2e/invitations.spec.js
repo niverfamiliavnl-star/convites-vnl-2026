@@ -31,29 +31,71 @@ test("Hannah permite pular a introdução e exibe as informações", async ({ pa
   await mockBackend(page);
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Pular introdução" }).click();
-  await expect(page.getByRole("heading", { name: "Venha celebrar com Hannah" })).toBeVisible();
-  await expect(page.getByText("Sítio Jalisco")).toBeVisible();
-  await expect(page.getByRole("link", { name: /Abrir no Google Maps/ })).toHaveAttribute("href", "https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A");
-  await expect(page.getByRole("button", { name: "Enviar confirmação" })).toBeEnabled();
+  await expect(page.getByRole("heading", { name: "Hannah Lis faz 7 anos" })).toBeVisible();
+  await expect(page.getByText("Sítio Jalisco").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Como chegar/ }).first()).toHaveAttribute("href", "https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A");
+  await page.getByRole("button", { name: "Confirmar presença" }).click();
+  await expect(page.locator("[data-sheet]")).toBeVisible();
+  await expect(page.locator("[data-sheet]").getByRole("button", { name: "Confirmar presença" })).toBeEnabled();
 });
 
 test("Hannah conclui a entrada pelo caminho principal", async ({ page }) => {
   await mockBackend(page);
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Entrar no Palácio" }).click();
+  await expect(page.getByRole("heading", { name: "Você recebeu um convite muito especial." })).toBeVisible();
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
+  await page.getByRole("button", { name: "Descobrir o convite" }).click();
   await expect(page.locator("[data-content]")).toBeFocused();
+});
+
+test("Hannah fecha o bottom sheet com ESC e devolve o foco", async ({ page }) => {
+  await mockBackend(page);
+  await page.goto("/hannah/");
+  await page.getByRole("button", { name: "Pular introdução" }).click();
+  const openButton = page.getByRole("button", { name: "Confirmar presença" });
+  await openButton.click();
+  await expect(page.getByLabel("Nome do responsável ou família")).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("[data-sheet]")).toBeHidden();
+  await expect(openButton).toBeFocused();
+});
+
+test("Hannah envia RSVP real pelo contrato compartilhado e exibe o resultado", async ({ page }) => {
+  let submitted;
+  await mockBackend(page);
+  page.on("request", (request) => {
+    if (request.method() === "POST" && request.url().includes("test-deployment")) submitted = new URLSearchParams(request.postData() || "");
+  });
+  await page.goto("/hannah/");
+  await page.getByRole("button", { name: "Pular introdução" }).click();
+  await page.getByRole("button", { name: "Confirmar presença" }).click();
+  const sheet = page.locator("[data-sheet]");
+  await sheet.getByLabel("Nome do responsável ou família").fill("Família Teste");
+  await sheet.getByLabel("Telefone ou WhatsApp").fill("85 99999-1234");
+  await sheet.getByLabel("Sim, estaremos").check();
+  await sheet.getByLabel("Aumentar quantidade").click();
+  await expect(sheet.getByLabel("Quantidade total de pessoas")).toHaveValue("2");
+  await sheet.getByRole("button", { name: "Confirmar presença" }).click();
+  await expect(page.getByRole("heading", { name: "Presença confirmada!" })).toBeVisible();
+  expect(submitted.get("origem")).toBe("HANNAH");
+  expect(submitted.get("presenca")).toBe("SIM");
+  expect(submitted.get("quantidade")).toBe("2");
 });
 
 test("Noah equipa os seis itens em qualquer ordem", async ({ page }) => {
   await mockBackend(page);
   await page.goto("/noah/");
+  await expect(page.getByRole("button", { name: "Começar missão" })).toBeVisible();
+  await expect(page.locator("[data-mission-stage]")).toBeHidden();
+  await page.getByRole("button", { name: "Começar missão" }).click();
+  await expect(page.getByRole("heading", { name: "Equipe a Armadura de Deus" })).toBeFocused();
   const names = ["Escudo da Fé", "Sandálias do Evangelho", "Capacete da Salvação", "Espada do Espírito", "Cinturão da Verdade", "Couraça da Justiça"];
   for (const [index, name] of names.entries()) {
     await page.getByRole("button", { name: new RegExp(name) }).click();
     if (index < names.length - 1) await expect(page.locator("[data-mission-message]")).toContainText(name);
   }
-  await expect(page.locator("[data-progress]")).toHaveText("6 / 6");
+  await expect(page.locator("[data-progress]")).toHaveText("6/6");
   await expect(page.getByRole("button", { name: "Missão completa — ver convite" })).toBeVisible();
   await page.getByRole("button", { name: "Missão completa — ver convite" }).click();
   await expect(page.locator("[data-content]")).toBeFocused();
@@ -69,12 +111,23 @@ test("Noah permite pular a missão", async ({ page }) => {
 test("Noah permite equipar um item pelo teclado", async ({ page }) => {
   await mockBackend(page);
   await page.goto("/noah/");
+  await page.getByRole("button", { name: "Começar missão" }).click();
   const helmet = page.getByRole("button", { name: /Capacete da Salvação/ });
   await helmet.focus();
   await expect(helmet).toBeFocused();
   await helmet.press("Space");
   await expect(helmet).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator("[data-progress]")).toHaveText("1 / 6");
+  await expect(page.locator("[data-progress]")).toHaveText("1/6");
+});
+
+test("Noah evita repetir a missão já concluída e permite refazê-la", async ({ page }) => {
+  await mockBackend(page);
+  await page.addInitScript(() => localStorage.setItem("vnl:noah:mission", "seen"));
+  await page.goto("/noah/");
+  await expect(page.getByRole("button", { name: "Ver convite" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Refazer missão" })).toBeVisible();
+  await page.getByRole("button", { name: "Ver convite" }).click();
+  await expect(page.locator("[data-content]")).toBeFocused();
 });
 
 test("cada convite fixa sua própria origem", async ({ page }) => {
@@ -82,6 +135,17 @@ test("cada convite fixa sua própria origem", async ({ page }) => {
   for (const [route, origin] of [["hannah", "HANNAH"], ["noah", "NOAH"], ["vagner", "VAGNER"]]) {
     await page.goto(`/${route}/`);
     await expect(page.locator('input[name="origem"]')).toHaveValue(origin);
+  }
+});
+
+test("as três rotas exibem os avisos comuns do evento", async ({ page }) => {
+  await mockBackend(page);
+  for (const route of ["hannah", "noah", "vagner"]) {
+    await page.goto(`/${route}/`);
+    if (route === "hannah") await page.getByRole("button", { name: "Pular introdução" }).click();
+    await expect(page.getByText("Traje despojado", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(/Piscina liberada para as crianças/).first()).toBeVisible();
+    await expect(page.getByText("Não serão aceitas bebidas alcoólicas.", { exact: true }).first()).toBeVisible();
   }
 });
 
@@ -122,16 +186,33 @@ test("Vagner destaca Josué 24:15 sem depender de áudio", async ({ page }) => {
   await mockBackend(page);
   await page.goto("/vagner/");
   await page.getByRole("button", { name: "Pular introdução" }).click();
-  await expect(page.getByText("Josué 24:15")).toBeVisible();
+  await expect(page.locator("[data-verse]").getByText("Josué 24:15")).toBeVisible();
   await expect(page.locator("audio")).toHaveCount(0);
 });
 
 test("Vagner conclui a entrada pelo caminho principal", async ({ page }) => {
   await mockBackend(page);
   await page.goto("/vagner/");
-  await page.getByRole("button", { name: "Entrar", exact: true }).click();
+  await page.getByRole("button", { name: "Entrar na história" }).click();
+  await expect(page.locator("[data-cinematic]")).toBeFocused();
+  await expect(page.locator('[data-scene="0"]')).toHaveAttribute("data-active", "true");
+  await expect(page.locator("[data-story-progress]")).toHaveAttribute("aria-valuenow", "1");
+  await expect(page.getByRole("button", { name: "Ver o convite" })).toBeVisible();
+  await expect(page.locator('[data-scene="3"]')).toHaveAttribute("data-active", "true");
+  await expect(page.locator("[data-story-progress]")).toHaveAttribute("aria-valuenow", "4");
+  await page.getByRole("button", { name: "Ver o convite" }).click();
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
   await expect(page.locator("[data-content]")).toBeFocused();
+});
+
+test("Vagner evita repetir a abertura e permite revê-la", async ({ page }) => {
+  await mockBackend(page);
+  await page.addInitScript(() => localStorage.setItem("vnl:vagner:intro", "seen"));
+  await page.goto("/vagner/");
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
+  await page.getByRole("button", { name: "Rever abertura" }).click();
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "idle");
+  await expect(page.getByRole("button", { name: "Entrar na história" })).toBeFocused();
 });
 
 test("prazo fechado substitui o formulário pelo contato", async ({ page }) => {
@@ -156,7 +237,8 @@ test("relógio incorreto do aparelho não substitui a decisão do backend", asyn
   await mockBackend(page, { open: true });
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Pular introdução" }).click();
-  await expect(page.getByRole("button", { name: "Enviar confirmação" })).toBeEnabled();
+  await page.getByRole("button", { name: "Confirmar presença" }).click();
+  await expect(page.locator("[data-sheet]").getByRole("button", { name: "Confirmar presença" })).toBeEnabled();
   await expect(page.getByText(/Confirmações abertas/)).toBeVisible();
 });
 
@@ -167,9 +249,9 @@ test("informações críticas permanecem no HTML sem JavaScript", async ({ brows
     await page.goto(`http://127.0.0.1:4173/${route}/`);
     await expect(page.getByText("26 de setembro de 2026")).toBeVisible();
     await expect(page.getByText("14h", { exact: true })).toBeVisible();
-    await expect(page.getByText("Sítio Jalisco")).toBeVisible();
-    await expect(page.getByText("Traga sua roupa de banho")).toBeVisible();
-    await expect(page.locator("[data-maps-link]")).toHaveAttribute("href", "https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A");
+    await expect(page.getByText("Sítio Jalisco").first()).toBeVisible();
+    await expect(page.getByText(/roupa de banho/i).first()).toBeVisible();
+    await expect(page.locator("[data-maps-link]").first()).toHaveAttribute("href", "https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A");
   }
   await context.close();
 });
@@ -177,7 +259,8 @@ test("informações críticas permanecem no HTML sem JavaScript", async ({ brows
 test("sem endpoint mantém informações e bloqueia o envio", async ({ page }) => {
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Pular introdução" }).click();
-  await expect(page.getByText("Sítio Jalisco")).toBeVisible();
+  await expect(page.getByText("Sítio Jalisco").first()).toBeVisible();
+  await page.getByRole("button", { name: "Confirmar presença" }).click();
   await expect(page.getByText("A confirmação ainda não está conectada. Tente novamente mais tarde.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Enviar confirmação" })).toBeDisabled();
+  await expect(page.locator("[data-sheet]").getByRole("button", { name: "Confirmar presença" })).toBeDisabled();
 });

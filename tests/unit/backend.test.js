@@ -174,4 +174,8 @@ describe("histórico e consolidação", () => {
     expect(capturedHtml).toContain("</script>");
     expect(capturedHtml).not.toContain("<\\/script>");
   });
+
+  it("mantém a última atualização vazia enquanto não há respostas vigentes", () => {
+    expect(source).toContain('=IF(COUNT(CONSOLIDADO!C2:C)=0,"",MAX(CONSOLIDADO!C2:C))');
+  });
 });

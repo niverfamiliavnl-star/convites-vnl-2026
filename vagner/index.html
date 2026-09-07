@@ -3,52 +3,118 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#171914">
+    <meta name="theme-color" content="#071827">
     <meta name="description" content="Convite de aniversário de Vagner Cunha — 42 anos.">
-    <title>Vagner Cunha · 42 anos</title>
+    <title>Vagner Cunha · 42 anos · Fé, Família e Legado</title>
     <link rel="stylesheet" href="../shared/base.css">
     <link rel="stylesheet" href="./style.css">
+    <noscript><style>.legacy-intro{display:none!important}</style></noscript>
     <script type="module" src="./app.js"></script>
   </head>
-  <body class="vagner-body">
+  <body class="vagner-body modal-open">
     <a class="skip-link" href="#informacoes">Ir para as informações</a>
-    <section class="legacy-intro" data-intro aria-label="Entrada do convite">
-      <div class="light-beam" aria-hidden="true"></div>
-      <div class="roots" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-      <div class="legacy-copy">
-        <p class="eyebrow">Fé · Família · Legado</p>
-        <h1>Vagner<br><span>Cunha</span></h1>
-        <p class="age">42 <small>anos</small></p>
-        <button class="primary-button" type="button" data-enter>Entrar</button>
-        <button class="intro-skip" type="button" data-skip>Pular introdução</button>
+
+    <header class="legacy-intro" data-intro data-state="idle" aria-labelledby="legacy-entry-title">
+      <div class="legacy-atmosphere" aria-hidden="true">
+        <span class="sunset-glow"></span>
+        <span class="light-path"></span>
+        <svg class="olive-silhouette" viewBox="0 0 420 620" role="presentation">
+          <path class="olive-trunk" d="M235 620C222 515 245 451 217 370c-19-55-11-122 25-184M220 409c-45-65-87-91-129-105M226 342c48-49 90-78 138-95M224 285c-37-47-55-91-61-139M241 232c38-35 57-75 68-120"/>
+          <g class="olive-leaves">
+            <ellipse cx="83" cy="286" rx="43" ry="15" transform="rotate(18 83 286)"/><ellipse cx="119" cy="321" rx="42" ry="14" transform="rotate(34 119 321)"/>
+            <ellipse cx="151" cy="174" rx="42" ry="14" transform="rotate(62 151 174)"/><ellipse cx="168" cy="119" rx="39" ry="14" transform="rotate(82 168 119)"/>
+            <ellipse cx="303" cy="111" rx="42" ry="14" transform="rotate(-64 303 111)"/><ellipse cx="330" cy="166" rx="43" ry="15" transform="rotate(-46 330 166)"/>
+            <ellipse cx="366" cy="235" rx="44" ry="15" transform="rotate(-20 366 235)"/><ellipse cx="322" cy="278" rx="39" ry="14" transform="rotate(-33 322 278)"/>
+          </g>
+        </svg>
+        <svg class="home-line" viewBox="0 0 520 360" role="presentation"><path d="M28 193 260 31l232 162M81 160v166h358V160M197 326V211h126v115"/><path class="home-light" d="M260 31v295"/></svg>
+        <div class="foundation-stones"><i></i><i></i><i></i><i></i><i></i></div>
       </div>
-      <div class="keyboard-signature" aria-label="Teclado, traço pessoal de Vagner" role="img">
-        <span></span><span class="black"></span><span></span><span class="black"></span><span></span><span></span><span class="black"></span><span></span><span class="black"></span><span></span>
+
+      <div class="legacy-frame">
+        <div class="legacy-brand" aria-label="Vagner Cunha, 42 anos">
+          <span>V</span>
+          <div><strong>Vagner Cunha</strong><small>42 anos · 2026</small></div>
+        </div>
+
+        <section class="entry-panel" data-entry-panel>
+          <p class="legacy-kicker">Fé · Família · Legado</p>
+          <h1 id="legacy-entry-title">Uma vida firmada<br><em>no essencial.</em></h1>
+          <p class="entry-lede">Uma breve jornada por aquilo que permanece: o fundamento, as raízes, a casa e a fé.</p>
+          <div class="entry-actions">
+            <button class="legacy-button legacy-button--gold" type="button" data-enter>Entrar na história</button>
+            <button class="legacy-button legacy-button--quiet" type="button" data-skip>Pular introdução</button>
+          </div>
+        </section>
+
+        <section class="cinematic-story" data-cinematic hidden tabindex="-1" aria-label="Fé, família e legado" aria-live="polite">
+          <div class="scene-deck">
+            <article class="legacy-scene" data-scene="0" data-active="true" aria-hidden="false">
+              <svg viewBox="0 0 180 180" role="presentation"><path d="m31 130 17-61 45-30 49 36 10 55z"/><path d="M31 130h121M48 69l94 6M93 39v91"/></svg>
+              <div><span>01 · Fundamento</span><h2>Uma história começa sobre a pedra.</h2><p>Convicções firmes sustentam tudo o que o tempo constrói.</p></div>
+            </article>
+            <article class="legacy-scene" data-scene="1" data-active="false" aria-hidden="true">
+              <svg viewBox="0 0 180 180" role="presentation"><path d="M90 157c-5-47 8-74 1-113M89 103 52 65M93 81l34-38M90 127l-44 22M91 125l43 26"/><ellipse cx="47" cy="59" rx="28" ry="10" transform="rotate(35 47 59)"/><ellipse cx="133" cy="38" rx="28" ry="10" transform="rotate(-35 133 38)"/><ellipse cx="40" cy="149" rx="25" ry="9" transform="rotate(-12 40 149)"/><ellipse cx="140" cy="151" rx="25" ry="9" transform="rotate(14 140 151)"/></svg>
+              <div><span>02 · Raízes</span><h2>A fé cria raízes profundas.</h2><p>É delas que vêm a força, a direção e a gratidão.</p></div>
+            </article>
+            <article class="legacy-scene" data-scene="2" data-active="false" aria-hidden="true">
+              <svg viewBox="0 0 180 180" role="presentation"><path d="m24 86 66-53 66 53M42 77v72h96V77M72 149v-45h36v45"/><path d="M90 33v116"/></svg>
+              <div><span>03 · Casa</span><h2>A família dá sentido ao caminho.</h2><p>Uma casa feita de presença, cuidado e histórias compartilhadas.</p></div>
+            </article>
+            <article class="legacy-scene legacy-scene--verse" data-scene="3" data-active="false" aria-hidden="true">
+              <div><span>04 · Fé</span><blockquote>“Eu e minha casa<br>serviremos ao Senhor.”</blockquote><cite>Josué 24:15</cite></div>
+            </article>
+          </div>
+          <div class="story-footer">
+            <div class="story-progress" data-story-progress role="progressbar" aria-label="Progresso da abertura" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1">
+              <i data-progress-step="0" data-active="true"></i><i data-progress-step="1"></i><i data-progress-step="2"></i><i data-progress-step="3"></i>
+            </div>
+            <p data-story-status>Fundamento</p>
+            <button class="legacy-button legacy-button--gold" type="button" data-finish hidden>Ver o convite</button>
+            <button class="story-skip" type="button" data-skip-story>Pular sequência</button>
+          </div>
+        </section>
+
+        <div class="keyboard-signature" aria-label="Teclado, assinatura pessoal de Vagner" role="img">
+          <small>uma assinatura pessoal</small>
+          <div aria-hidden="true"><span></span><span class="black"></span><span></span><span class="black"></span><span></span><span></span><span class="black"></span><span></span><span class="black"></span><span></span></div>
+        </div>
       </div>
-    </section>
+    </header>
 
     <main class="vagner-main" data-content tabindex="-1">
-      <section class="verse" aria-labelledby="verse-title">
-        <div class="foundation" aria-hidden="true"></div>
-        <p class="eyebrow">Uma história edificada no essencial</p>
-        <blockquote id="verse-title">“Eu e minha casa<br>serviremos ao Senhor.”</blockquote>
-        <cite>Josué 24:15</cite>
-        <p class="verse-note">Quarenta e dois anos de vida, raízes e gratidão. Uma tarde para celebrar ao lado de quem faz parte dessa história.</p>
+      <section class="legacy-testament" data-verse aria-labelledby="verse-title">
+        <div class="testament-mark" aria-hidden="true"><span>V</span><small>42</small></div>
+        <div class="testament-copy">
+          <p class="legacy-kicker">Fé · Família · Legado</p>
+          <blockquote id="verse-title">“Eu e minha casa<br>serviremos ao Senhor.”</blockquote>
+          <cite>Josué 24:15</cite>
+          <p>Quarenta e dois anos de vida, raízes e gratidão. Uma tarde para celebrar ao lado de quem faz parte dessa história.</p>
+        </div>
+        <svg class="olive-sprig" viewBox="0 0 260 150" aria-hidden="true"><path d="M17 132c75-30 130-75 221-116"/><ellipse cx="61" cy="109" rx="32" ry="10" transform="rotate(18 61 109)"/><ellipse cx="91" cy="91" rx="31" ry="10" transform="rotate(-22 91 91)"/><ellipse cx="127" cy="69" rx="31" ry="10" transform="rotate(14 127 69)"/><ellipse cx="159" cy="52" rx="30" ry="10" transform="rotate(-24 159 52)"/><ellipse cx="197" cy="31" rx="28" ry="9" transform="rotate(11 197 31)"/></svg>
       </section>
 
-      <section class="event-card" id="informacoes" aria-labelledby="event-title">
-        <span class="eyebrow">Celebre conosco</span><h2 id="event-title">Um encontro de fé e família</h2>
+      <section class="event-card vagner-event-card" id="informacoes" aria-labelledby="event-title">
+        <span class="legacy-kicker">Celebre conosco</span>
+        <h2 id="event-title">Um encontro de fé e família</h2>
+        <p class="event-intro">Sua presença faz parte desta história.</p>
         <div class="event-grid">
           <div class="event-detail"><span>Data</span><strong data-event-date>26 de setembro de 2026</strong></div>
           <div class="event-detail"><span>Horário</span><strong data-event-time>14h</strong></div>
           <div class="event-detail"><span>Local</span><strong data-event-venue>Sítio Jalisco</strong></div>
           <div class="event-detail"><span>Para aproveitar</span><strong data-event-note>Traga sua roupa de banho</strong></div>
         </div>
+        <ul class="event-notices" aria-label="Informações importantes">
+          <li data-event-dress-code>Traje despojado</li>
+          <li data-event-pool-notice>Piscina liberada para as crianças — leve roupa de banho.</li>
+          <li data-event-alcohol-notice>Não serão aceitas bebidas alcoólicas.</li>
+        </ul>
         <a class="map-link" data-maps-link href="https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A">Ver localização <span aria-hidden="true">↗</span></a>
       </section>
 
-      <section class="rsvp-card" data-rsvp-region aria-labelledby="rsvp-title">
-        <span class="eyebrow">Confirmação</span><h2 id="rsvp-title">Será uma alegria ter você conosco</h2>
+      <section class="rsvp-card vagner-rsvp-card" data-rsvp-region aria-labelledby="rsvp-title">
+        <span class="legacy-kicker">Confirmação</span>
+        <h2 id="rsvp-title">Será uma alegria ter você conosco</h2>
         <p class="rsvp-lede">Confirme até <span data-event-cutoff>15 de setembro de 2026, às 23h59</span>.</p>
         <p class="rsvp-status" data-rsvp-status role="status" aria-live="polite">Verificando a disponibilidade da confirmação…</p>
         <form class="rsvp-form" data-rsvp-form method="post" target="rsvp-transport">
@@ -65,6 +131,11 @@
         </form>
         <iframe class="rsvp-transport" data-rsvp-frame name="rsvp-transport" title="Processamento da confirmação"></iframe>
       </section>
+
+      <footer class="vagner-footer">
+        <p>Vagner Cunha · 42 anos · 2026</p>
+        <button type="button" data-replay>Rever abertura</button>
+      </footer>
     </main>
   </body>
 </html>
