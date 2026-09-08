@@ -332,7 +332,7 @@ test("Vagner usa a foto real como identidade na abertura e no convite", async ({
   const photos = page.locator('img[src="./assets/vagner-hero.webp"]');
   await expect(photos).toHaveCount(3);
   await expect(page.locator(".legacy-photo img")).toBeVisible();
-  await expect.poll(() => page.locator(".legacy-photo img").evaluate((image) => [image.naturalWidth, image.naturalHeight])).toEqual([350, 1080]);
+  await expect.poll(() => page.locator(".legacy-photo img").evaluate((image) => [image.naturalWidth, image.naturalHeight])).toEqual([724, 2172]);
   await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
   await expect(page.getByText("42 anos", { exact: true }).first()).toBeVisible();
   await page.getByRole("button", { name: "Pular introdução" }).click();
