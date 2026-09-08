@@ -13,6 +13,7 @@ const resultNo = document.querySelector("[data-result-no]");
 const resultClosed = document.querySelector("[data-result-closed]");
 let returnFocus = null;
 let sheetFocusTimer = null;
+let contentFocusTimer = null;
 
 function hasSeenIntro() {
   try { return localStorage.getItem(STORAGE_KEY) === "seen"; } catch { return false; }
@@ -23,7 +24,11 @@ function rememberIntro() {
 }
 
 function focusContent() {
-  window.setTimeout(() => content?.focus({ preventScroll: true }), reducedMotion ? 0 : 420);
+  window.clearTimeout(contentFocusTimer);
+  contentFocusTimer = window.setTimeout(() => {
+    contentFocusTimer = null;
+    if (!sheet || sheet.hidden) content?.focus({ preventScroll: true });
+  }, reducedMotion ? 0 : 420);
 }
 
 function finishIntro({ focus = true } = {}) {
@@ -72,6 +77,8 @@ function focusFirstSheetField(attemptsLeft = 40) {
 
 function openSheet(event) {
   if (!sheet || !sheetBackdrop) return;
+  window.clearTimeout(contentFocusTimer);
+  contentFocusTimer = null;
   returnFocus = event?.currentTarget instanceof HTMLElement ? event.currentTarget : document.activeElement;
   sheetBackdrop.hidden = false;
   sheet.hidden = false;

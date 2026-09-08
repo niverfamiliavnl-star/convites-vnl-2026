@@ -128,6 +128,16 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - A produção permaneceu sem respostas: `RESPOSTAS` e `CONSOLIDADO` somente com cabeçalhos; `PAINEL` com todas as métricas em zero e sem data de atualização.
 - Nenhuma alteração ou implantação foi feita em produção e nenhum GitHub Pages foi publicado.
 
+## Evidências da ativação controlada de produção — 08/09/2026
+
+- O Web App de produção foi implantado na versão 1, executando como `niver.familia.vnl@gmail.com`, com acesso anônimo habilitado para o RSVP; a planilha de produção continuou privada.
+- A URL `/exec` de produção respondeu a uma consulta `status` não destrutiva a partir das três rotas, sem gravar dados e com o prazo aberto.
+- Após a configuração, `RESPOSTAS` e `CONSOLIDADO` da produção permaneceram somente com cabeçalhos; `PAINEL` permaneceu com todas as métricas em zero e sem última atualização.
+- O front-end passou a conter exclusivamente a URL `/exec` vigente de produção. Auditoria do artefato estático não encontrou IDs de planilhas ou projetos, credenciais, dados pessoais, URLs de homologação, placeholders de endpoint ou e-mails antigos.
+- Regressão pós-configuração aprovada: 32 testes unitários e 38 testes de navegador; o teste direcionado de foco da Hannah passou em 2 de 2 perfis.
+- Nenhuma resposta fictícia foi enviada à produção e nenhum histórico foi apagado.
+- A publicação no GitHub Pages não foi executada: o GitHub CLI (`gh`) não está instalado neste ambiente e não foi possível verificar com segurança a conta proprietária. Repositório, remoto, push, workflow e links públicos permanecem pendentes de uma conta/repositório explicitamente definido ou de CLI autenticado.
+
 ## Evidências da experiência Vagner — 07/09/2026
 
 - A rota foi redesenhada localmente como “Fé, Família e Legado”, com uma sequência em quatro movimentos: pedra/fundamento, oliveira/raízes, casa/família e luz/fé.

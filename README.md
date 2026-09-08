@@ -21,7 +21,7 @@ npm run test:e2e
 
 Abra `http://127.0.0.1:4173/hannah/`, `/noah/` ou `/vagner/`.
 
-Enquanto `shared/event-config.js` contiver o placeholder do Apps Script, os convites exibem as informações normalmente e mantêm o RSVP bloqueado.
+Sem um endpoint válido do Apps Script, os convites exibem as informações normalmente e mantêm o RSVP bloqueado.
 
 ## Publicação
 

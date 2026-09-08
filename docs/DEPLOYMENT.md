@@ -17,7 +17,7 @@
 2. Repita a instalação do mesmo código e execute `setupProject`.
 3. Confira todas as chaves na aba `CONFIGURACAO` e mantenha `RSVP_ATIVO=TRUE`.
 4. Com autorização explícita, implante como App da Web anônima.
-5. Substitua `__APPS_SCRIPT_WEB_APP_URL__` em `shared/event-config.js` pela URL `/exec` de produção.
+5. Confirme que `shared/event-config.js` contém exclusivamente a URL `/exec` da implantação vigente de produção.
 6. Não registre respostas fictícias na produção. Use o `doGet` para o teste de saúde final.
 
 ## 3. GitHub Pages

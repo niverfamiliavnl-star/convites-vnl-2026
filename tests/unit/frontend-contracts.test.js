@@ -21,7 +21,10 @@ describe("contratos do merge da Hannah", () => {
     expect(html).not.toContain("onerror=");
   });
 
-  it("mantém o endpoint de produção não configurado no front-end", () => {
-    expect(read("shared/event-config.js")).toContain('endpoint: "__APPS_SCRIPT_WEB_APP_URL__"');
+  it("mantém apenas um endpoint de produção válido no front-end", () => {
+    const config = read("shared/event-config.js");
+    expect(config).toMatch(/endpoint: "https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec"/);
+    expect(config).not.toContain('endpoint: "__');
+    expect(config).not.toContain("test-deployment");
   });
 });

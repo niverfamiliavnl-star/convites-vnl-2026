@@ -17,8 +17,8 @@ export const EVENT = Object.freeze({
 });
 
 export const RSVP = Object.freeze({
-  // Substituído pela URL /exec somente após o deploy autorizado do Apps Script.
-  endpoint: "__APPS_SCRIPT_WEB_APP_URL__",
+  // Endpoint público do Web App de produção. IDs de planilha permanecem somente no projeto vinculado.
+  endpoint: "https://script.google.com/macros/s/AKfycbxn8236bdwZyyfn5xs9MnCzCtgrJTm01epTT-HzgKYesYhXdpJZtxJTloftQfyj_s5fiA/exec",
   minPartySize: 1,
   maxPartySize: 20,
   responseTimeoutMs: 12000,

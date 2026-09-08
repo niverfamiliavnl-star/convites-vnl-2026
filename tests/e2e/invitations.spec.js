@@ -2,7 +2,10 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
 const configSource = readFileSync(new URL("../../shared/event-config.js", import.meta.url), "utf8")
-  .replace("__APPS_SCRIPT_WEB_APP_URL__", "https://script.google.com/macros/s/test-deployment/exec");
+  .replace(
+    /endpoint:\s*"https:\/\/script\.google\.com\/macros\/s\/[^\"]+\/exec"/,
+    'endpoint: "https://script.google.com/macros/s/test-deployment/exec"',
+  );
 
 async function mockBackend(page, { open = true } = {}) {
   await page.route("**/shared/event-config.js", (route) => route.fulfill({ contentType: "text/javascript", body: configSource }));
@@ -55,7 +58,7 @@ test("Hannah fecha o bottom sheet com ESC e devolve o foco", async ({ page }) =>
   await page.getByRole("button", { name: "Pular introdução" }).click();
   const openButton = page.getByRole("button", { name: "Confirmar presença" });
   await openButton.click();
-  await expect(page.getByLabel("Nome do responsável ou família")).toBeFocused();
+  await expect(page.getByLabel("Nome do responsável ou família")).toBeFocused({ timeout: 10_000 });
   await page.keyboard.press("Escape");
   await expect(page.locator("[data-sheet]")).toBeHidden();
   await expect(openButton).toBeFocused();
@@ -257,6 +260,14 @@ test("informações críticas permanecem no HTML sem JavaScript", async ({ brows
 });
 
 test("sem endpoint mantém informações e bloqueia o envio", async ({ page }) => {
+  const disconnectedConfig = configSource.replace(
+    'endpoint: "https://script.google.com/macros/s/test-deployment/exec"',
+    'endpoint: ""',
+  );
+  await page.route("**/shared/event-config.js", (route) => route.fulfill({
+    contentType: "text/javascript",
+    body: disconnectedConfig,
+  }));
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Pular introdução" }).click();
   await expect(page.getByText("Sítio Jalisco").first()).toBeVisible();

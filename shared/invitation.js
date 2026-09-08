@@ -126,7 +126,6 @@ export function initInvitation({ origin }) {
   let pendingRequestId = crypto.randomUUID();
   requestInput.value = pendingRequestId;
   setStatus(status, "Verificando a disponibilidade da confirmação…");
-  frame.src = buildStatusUrl(pendingRequestId);
 
   const initialTimeout = window.setTimeout(() => {
     setFormEnabled(form, false);
@@ -181,6 +180,10 @@ export function initInvitation({ origin }) {
     setFormEnabled(form, true);
     setStatus(status, messages[data.code] || messages.ERROR, "error");
   });
+
+  // Instale o listener antes de iniciar a navegação: endpoints rápidos podem
+  // responder imediatamente e a mensagem não deve ser perdida.
+  frame.src = buildStatusUrl(pendingRequestId);
 
   form.addEventListener("submit", (event) => {
     const canonicalPhone = normalizeClientPhone(form.elements.namedItem("telefone").value);
