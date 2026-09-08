@@ -193,3 +193,14 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - A montagem estática local incluiu `vagner/assets/vagner-hero.webp` com 66.510 bytes e não incluiu a arte original `Convite-Vagner.png`.
 - `vagner/app.js`, `shared/`, `backend/`, Hannah e Noah permaneceram inalterados. O MP3 aprovado da Hannah conservou o SHA-256 `59FC13FF781EBFDFE36545726192B71891B1B1DD8CA8E451DBE9F35597B78FE4`.
 - Nenhum push ou publicação foi realizado nesta etapa.
+
+## Reposicionamento esportivo da rota Vagner — 08/09/2026
+
+- A rota passou a seguir três momentos: entrada no estádio, revelação editorial do Vagner e convite com informações/RSVP.
+- A direção anterior de pedra, raízes, casa, oliveira, teclado e “uma assinatura pessoal” foi removida. Josué 24:15 permaneceu somente como faixa secundária antes da confirmação.
+- `vagner-stadium.webp` preserva 941×1672 e ocupa 234.746 bytes; `vagner-tunnel.webp` preserva 768×1376 e ocupa 150.410 bytes. O antigo `vagner-hero.webp` foi removido.
+- A inspeção visual aprovou 1440×900, 390×844 e 430×932; 360×800 também foi medido. Não houve overflow horizontal, e os controles móveis mediram 53 px de altura.
+- Evidências desktop e mobile das cenas 1, 2 e convite estão em `docs/evidence/vagner-sport/`. O relatório `design-qa.md` terminou com `final result: passed`.
+- Testes focados de Vagner: 8 aprovados. Suíte unitária: 32 aprovados. Regressão E2E: 54 aprovados em Chromium desktop e mobile.
+- Maps, avisos, prazo, visitante recorrente, movimento reduzido, falha segura do backend e `origem=VAGNER` permaneceram cobertos.
+- `shared/`, `backend/`, Hannah, Noah, planilhas e Apps Script não foram alterados. Nenhum push ou publicação foi realizado.

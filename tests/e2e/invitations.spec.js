@@ -326,31 +326,38 @@ test("Vagner destaca Josué 24:15 sem depender de áudio", async ({ page }) => {
   await expect(page.locator("audio")).toHaveCount(0);
 });
 
-test("Vagner usa a foto real como identidade na abertura e no convite", async ({ page }) => {
+test("Vagner usa os dois assets aprovados e remove a direção visual anterior", async ({ page }) => {
   await mockBackend(page);
   await page.goto("/vagner/");
-  const photos = page.locator('img[src="./assets/vagner-hero.webp"]');
-  await expect(photos).toHaveCount(3);
-  await expect(page.locator(".legacy-photo img")).toBeVisible();
-  await expect.poll(() => page.locator(".legacy-photo img").evaluate((image) => [image.naturalWidth, image.naturalHeight])).toEqual([724, 2172]);
-  await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
-  await expect(page.getByText("42 anos", { exact: true }).first()).toBeVisible();
+  const stadium = page.locator('img[src="./assets/vagner-stadium.webp"]');
+  const tunnel = page.locator('img[src="./assets/vagner-tunnel.webp"]');
+  await expect(stadium).toHaveCount(2);
+  await expect(tunnel).toHaveCount(1);
+  await expect(page.locator('img[src="./assets/vagner-hero.webp"]')).toHaveCount(0);
+  await expect.poll(() => stadium.first().evaluate((image) => [image.naturalWidth, image.naturalHeight])).toEqual([941, 1672]);
+  await expect.poll(() => tunnel.evaluate((image) => [image.naturalWidth, image.naturalHeight])).toEqual([768, 1376]);
+  await expect(page.getByRole("heading", { name: /O grande dia/ })).toBeVisible();
+  await expect(page.getByText("uma assinatura pessoal", { exact: true })).toHaveCount(0);
+  await expect(page.locator(".keyboard-signature")).toHaveCount(0);
   await page.getByRole("button", { name: "Pular introdução" }).click();
-  await expect(page.locator(".testament-photo img")).toBeVisible();
-  await expect(page.locator(".event-portrait img")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
+  await expect(page.getByText("Venha confortável para aproveitar a festa.")).toBeVisible();
+  await expect(page.getByText("Traje despojado", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Abrir no Google Maps" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 });
 
-test("Vagner conclui a entrada pelo caminho principal", async ({ page }) => {
+test("Vagner percorre chegada, identidade e convite pelo caminho principal", async ({ page }) => {
   await mockBackend(page);
   await page.goto("/vagner/");
-  await page.getByRole("button", { name: "Entrar na história" }).click();
-  await expect(page.locator("[data-cinematic]")).toBeFocused();
-  await expect(page.locator('[data-scene="0"]')).toHaveAttribute("data-active", "true");
-  await expect(page.locator("[data-story-progress]")).toHaveAttribute("aria-valuenow", "1");
-  await expect(page.getByRole("button", { name: "Ver o convite" })).toBeVisible();
-  await expect(page.locator('[data-scene="3"]')).toHaveAttribute("data-active", "true");
-  await expect(page.locator("[data-story-progress]")).toHaveAttribute("aria-valuenow", "4");
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "arrival");
+  await page.getByRole("button", { name: "Entrar na celebração" }).click();
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "identity");
+  await expect(page.locator('[data-scene="0"]')).toHaveAttribute("data-active", "false");
+  await expect(page.locator('[data-scene="1"]')).toHaveAttribute("data-active", "true");
+  await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
+  await expect(page.getByText("Uma vida para agradecer.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Ver o convite" })).toBeFocused();
   await page.getByRole("button", { name: "Ver o convite" }).click();
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
   await expect(page.locator("[data-content]")).toBeFocused();
@@ -362,8 +369,8 @@ test("Vagner evita repetir a abertura e permite revê-la", async ({ page }) => {
   await page.goto("/vagner/");
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
   await page.getByRole("button", { name: "Rever abertura" }).click();
-  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "idle");
-  await expect(page.getByRole("button", { name: "Entrar na história" })).toBeFocused();
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "arrival");
+  await expect(page.getByRole("button", { name: "Entrar na celebração" })).toBeFocused();
 });
 
 test("prazo fechado substitui o formulário pelo contato", async ({ page }) => {
