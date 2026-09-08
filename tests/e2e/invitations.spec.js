@@ -247,6 +247,7 @@ test("Noah permite equipar um item pelo teclado", async ({ page }) => {
   await mockBackend(page);
   await page.goto("/noah/");
   await page.getByRole("button", { name: "Começar missão" }).click();
+  await expect(page.locator("#loadout-title")).toBeFocused();
   const helmet = page.getByRole("button", { name: /Capacete da Salvação/ });
   await helmet.focus();
   await expect(helmet).toBeFocused();
@@ -323,6 +324,21 @@ test("Vagner destaca Josué 24:15 sem depender de áudio", async ({ page }) => {
   await page.getByRole("button", { name: "Pular introdução" }).click();
   await expect(page.locator("[data-verse]").getByText("Josué 24:15")).toBeVisible();
   await expect(page.locator("audio")).toHaveCount(0);
+});
+
+test("Vagner usa a foto real como identidade na abertura e no convite", async ({ page }) => {
+  await mockBackend(page);
+  await page.goto("/vagner/");
+  const photos = page.locator('img[src="./assets/vagner-hero.webp"]');
+  await expect(photos).toHaveCount(3);
+  await expect(page.locator(".legacy-photo img")).toBeVisible();
+  await expect.poll(() => page.locator(".legacy-photo img").evaluate((image) => [image.naturalWidth, image.naturalHeight])).toEqual([350, 1080]);
+  await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
+  await expect(page.getByText("42 anos", { exact: true }).first()).toBeVisible();
+  await page.getByRole("button", { name: "Pular introdução" }).click();
+  await expect(page.locator(".testament-photo img")).toBeVisible();
+  await expect(page.locator(".event-portrait img")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
 });
 
 test("Vagner conclui a entrada pelo caminho principal", async ({ page }) => {

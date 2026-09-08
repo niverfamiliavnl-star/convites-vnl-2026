@@ -179,3 +179,17 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - A produção permaneceu sem respostas: `RESPOSTAS` e `CONSOLIDADO` somente com cabeçalhos; `PAINEL` com todas as métricas em zero e sem data de atualização.
 - A regressão final aprovou 32 testes unitários e 38 testes de navegador. A execução de navegador foi repetida com um processo após contenção de recursos na rodada paralela e terminou integralmente aprovada.
 - Nenhuma alteração ou implantação foi feita em produção e nenhum GitHub Pages foi publicado.
+
+## Refinamento fotográfico da rota Vagner — 08/09/2026
+
+- A fotografia aprovada foi tratada exclusivamente por recorte determinístico e conversão WebP, sem geração por IA, retoque facial, ampliação ou filtros agressivos.
+- O único asset derivado, `vagner/assets/vagner-hero.webp`, usa o recorte da origem em `left=205`, `top=70`, `350×1080`, mantendo a mesma resolução na saída. Foi codificado em WebP com qualidade 90 e ocupa 66.510 bytes.
+- O arquivo ficou abaixo da faixa aspiracional de 300–700 KB porque o recorte estreito comprimiu com eficiência; aumentar artificialmente o peso não melhoraria a fidelidade. A inspeção visual aprovou nitidez, reconhecimento e ausência completa de textos, caixas informativas, teclado e inscrições rasterizadas.
+- A mesma fotografia aparece na abertura, recua durante fundamento, raízes, casa e fé, acompanha o clímax de Josué 24:15 e retorna no bloco final do convite. Nome, idade, tema e verso permanecem em HTML.
+- Abertura e convite foram inspecionados em 390×844, 430×932 e 1440×900; o clímax também foi inspecionado em 1440×900. Não houve corte de rosto, sobreposição de texto, scroll horizontal ou inacessibilidade dos controles.
+- Evidências locais: `docs/evidence/vagner/desktop-abertura.png`, `desktop-climax.png`, `desktop-convite.png`, `mobile-390x844-abertura.png`, `mobile-390x844-convite.png`, `mobile-430x932-abertura.png` e `mobile-430x932-convite.png`.
+- O teste fotográfico confirma três usos do asset local, dimensões naturais 350×1080, hierarquia de nome/idade, presença no clímax e no convite e ausência de overflow horizontal.
+- Testes focados de Vagner: 8 aprovados nos perfis desktop e móvel. Regressão final: 32 testes unitários e 54 testes de navegador aprovados. O cenário de teclado do Noah foi estabilizado no teste aguardando o foco programado da missão e passou em 5 de 5 repetições desktop antes da suíte integral.
+- A montagem estática local incluiu `vagner/assets/vagner-hero.webp` com 66.510 bytes e não incluiu a arte original `Convite-Vagner.png`.
+- `vagner/app.js`, `shared/`, `backend/`, Hannah e Noah permaneceram inalterados. O MP3 aprovado da Hannah conservou o SHA-256 `59FC13FF781EBFDFE36545726192B71891B1B1DD8CA8E451DBE9F35597B78FE4`.
+- Nenhum push ou publicação foi realizado nesta etapa.
