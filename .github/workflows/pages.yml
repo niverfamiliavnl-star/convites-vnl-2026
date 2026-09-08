@@ -35,7 +35,10 @@ jobs:
         run: |
           mkdir dist
           cp index.html 404.html .nojekyll dist/
-          cp -R shared hannah noah vagner dist/
+          cp -R shared hannah vagner dist/
+          test -f dist/hannah/assets/trilha-palacio.mp3
+          test -f dist/vagner/assets/trilha-vagner.mp3
+          test ! -e dist/noah
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact

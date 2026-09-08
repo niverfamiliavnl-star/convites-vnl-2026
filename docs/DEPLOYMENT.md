@@ -29,8 +29,8 @@
 5. O workflow testa, monta um artefato contendo apenas os arquivos públicos e então publica.
 6. Confirme HTTPS e teste:
    - `https://<conta>.github.io/convites-vnl-2026/hannah/`
-   - `https://<conta>.github.io/convites-vnl-2026/noah/`
    - `https://<conta>.github.io/convites-vnl-2026/vagner/`
+7. Nesta publicação, `noah/` permanece versionado e testado no repositório, mas não integra o artefato do Pages até concluir seu refinamento visual.
 
 ## 4. Operação
 

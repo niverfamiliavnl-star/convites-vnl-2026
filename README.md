@@ -10,6 +10,8 @@ Três convites digitais independentes, unidos por um único RSVP em Google Apps 
 
 O diretório `shared/` contém somente o núcleo comum. `backend/`, `tests/` e `docs/` não fazem parte do artefato publicado.
 
+O artefato atual do GitHub Pages publica somente `hannah/` e `vagner/`. A rota `noah/` continua preservada e testada no repositório, aguardando o refinamento visual antes da distribuição.
+
 ## Desenvolvimento local
 
 ```text
