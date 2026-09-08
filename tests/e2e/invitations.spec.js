@@ -34,6 +34,118 @@ async function mockBackend(page, { open = true, statusDelay = 0, submitDelay = 0
   });
 }
 
+async function mockAudio(page, { rejectPlay = false, controllableVisibility = false } = {}) {
+  await page.addInitScript(({ rejectPlay, controllableVisibility }) => {
+    window.__audioPlayCalls = 0;
+    window.__audioPauseCalls = 0;
+    if (controllableVisibility) {
+      window.__documentHidden = false;
+      Object.defineProperty(document, "hidden", {
+        configurable: true,
+        get: () => window.__documentHidden,
+      });
+    }
+    Object.defineProperty(HTMLMediaElement.prototype, "paused", {
+      configurable: true,
+      get() { return this.dataset.testPlaying !== "true"; },
+    });
+    HTMLMediaElement.prototype.play = function play() {
+      window.__audioPlayCalls += 1;
+      if (rejectPlay) return Promise.reject(new DOMException("blocked", "NotAllowedError"));
+      this.dataset.testPlaying = "true";
+      return Promise.resolve();
+    };
+    HTMLMediaElement.prototype.pause = function pause() {
+      window.__audioPauseCalls += 1;
+      this.dataset.testPlaying = "false";
+    };
+  }, { rejectPlay, controllableVisibility });
+}
+
+test("Hannah inicia silenciosa e ativa uma única trilha pelo gesto de entrada", async ({ page }) => {
+  await mockAudio(page);
+  await mockBackend(page);
+  await page.goto("/hannah/");
+  const audio = page.locator("[data-palace-audio]");
+  const toggle = page.locator("[data-sound-toggle]");
+  await expect(audio).toHaveCount(1);
+  await expect(audio).toHaveJSProperty("loop", true);
+  await expect(audio).toHaveJSProperty("volume", 0.18);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+
+  await page.getByRole("button", { name: "Entrar no Palácio" }).click();
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(1);
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(toggle).toHaveAttribute("aria-label", "Desativar som");
+});
+
+test("controle de som pausa, retoma no mesmo ponto e funciona pelo teclado", async ({ page }) => {
+  await mockAudio(page);
+  await mockBackend(page);
+  await page.goto("/hannah/");
+  const audio = page.locator("[data-palace-audio]");
+  const toggle = page.locator("[data-sound-toggle]");
+  await toggle.focus();
+  await toggle.press("Space");
+  await audio.evaluate((element) => { element.currentTime = 17; });
+  await toggle.press("Space");
+  expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("off");
+  await toggle.press("Space");
+  await expect(audio).toHaveJSProperty("currentTime", 17);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
+});
+
+test("refresh preserva a preferência sem autoplay nem áudio duplicado", async ({ page }) => {
+  await mockAudio(page);
+  await mockBackend(page);
+  await page.goto("/hannah/");
+  await page.locator("[data-sound-toggle]").click();
+  await page.reload();
+  await expect(page.locator("[data-palace-audio]")).toHaveCount(1);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
+});
+
+test("bloqueio de play e erro do MP3 não interrompem a experiência", async ({ page }) => {
+  await mockAudio(page, { rejectPlay: true });
+  await mockBackend(page);
+  await page.goto("/hannah/");
+  await page.getByRole("button", { name: "Entrar no Palácio" }).click();
+  await expect(page.getByRole("heading", { name: "Você recebeu um convite muito especial." })).toBeVisible();
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("off");
+  await page.locator("[data-palace-audio]").dispatchEvent("error");
+  await page.getByRole("button", { name: "Descobrir o convite" }).click();
+  await expect(page.getByRole("heading", { name: "Hannah Lis faz 7 anos" })).toBeVisible();
+});
+
+test("visibilidade da página pausa e retoma somente quando habilitado", async ({ page }) => {
+  await mockAudio(page, { controllableVisibility: true });
+  await mockBackend(page);
+  await page.goto("/hannah/");
+  const audio = page.locator("[data-palace-audio]");
+  const toggle = page.locator("[data-sound-toggle]");
+  await toggle.click();
+  await audio.evaluate((element) => { element.currentTime = 23; });
+  await page.evaluate(() => {
+    window.__documentHidden = true;
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
+  await page.evaluate(() => {
+    window.__documentHidden = false;
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(audio).toHaveJSProperty("currentTime", 23);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
+});
+
 test("status atrasado além de 12 segundos ainda libera o RSVP", async ({ page }) => {
   await mockBackend(page, { statusDelay: 13_000 });
   await page.goto("/noah/");

@@ -135,6 +135,17 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - O cliente só exibe sucesso após `RECORDED` com `ok=true`. Ausência total de retorno não produz falso sucesso e mantém o envio bloqueado, com opção de nova tentativa.
 - Regressão aprovada: 32 testes unitários e 42 testes de navegador (Chromium desktop e perfil móvel), incluindo resposta após 13 segundos e ausência total de resposta.
 
+## Trilha ambiente opcional da Hannah — 08/09/2026
+
+- O MP3 aprovado foi preservado sem recompressão em `hannah/assets/trilha-palacio.mp3`: 2.898.128 bytes, 256 kbps e duração estimada em aproximadamente 90,6 segundos.
+- A página abre silenciosa; “Entrar no Palácio” inicia uma única faixa em loop a volume `0.18` quando a preferência não está desativada.
+- O controle roxo/dourado informa o estado real, funciona por teclado, pausa e retoma sem reiniciar a faixa e usa somente `vnl_hannah_sound=on|off` no armazenamento local.
+- Refresh não provoca autoplay nem cria outra instância. Rejeição de `play()`, erro do MP3 e mudança de visibilidade não interrompem o convite.
+- O artefato estático local incluiu o MP3 no caminho esperado, sem base64, hotlink, CDN ou dependência nova.
+- Testes específicos de áudio: 10 aprovados nos perfis desktop e móvel. Regressão completa: 32 testes unitários e 52 testes de navegador aprovados.
+- Hannah manteve Maps, transições, RSVP e `origem=HANNAH`; Noah, Vagner, núcleo compartilhado, backend, planilhas e Apps Script permaneceram sem alteração.
+- Publicação deliberadamente pendente: o commit desta etapa ficará somente local até nova autorização para push em `main`.
+
 ## Evidências da ativação controlada de produção — 08/09/2026
 
 - O Web App de produção foi implantado na versão 1, executando como `niver.familia.vnl@gmail.com`, com acesso anônimo habilitado para o RSVP; a planilha de produção continuou privada.

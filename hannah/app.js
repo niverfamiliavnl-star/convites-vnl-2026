@@ -1,6 +1,8 @@
 import { initInvitation } from "../shared/invitation.js";
 
 const STORAGE_KEY = "vnl:hannah:intro";
+const SOUND_STORAGE_KEY = "vnl_hannah_sound";
+const SOUND_VOLUME = 0.18;
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const intro = document.querySelector("[data-intro]");
 const content = document.querySelector("[data-content]");
@@ -11,9 +13,78 @@ const sheetBackdrop = document.querySelector("[data-sheet-backdrop]");
 const resultYes = document.querySelector("[data-result-yes]");
 const resultNo = document.querySelector("[data-result-no]");
 const resultClosed = document.querySelector("[data-result-closed]");
+const palaceAudio = document.querySelector("[data-palace-audio]");
+const soundToggle = document.querySelector("[data-sound-toggle]");
+const soundIcon = document.querySelector("[data-sound-icon]");
 let returnFocus = null;
 let sheetFocusTimer = null;
 let contentFocusTimer = null;
+let soundEnabled = true;
+let soundStarted = false;
+let pausedForVisibility = false;
+
+try { soundEnabled = localStorage.getItem(SOUND_STORAGE_KEY) !== "off"; } catch { /* Preferência opcional. */ }
+if (palaceAudio) palaceAudio.volume = SOUND_VOLUME;
+
+function rememberSound(value) {
+  try { localStorage.setItem(SOUND_STORAGE_KEY, value); } catch { /* A experiência continua sem persistência local. */ }
+}
+
+function renderSoundState(playing = false) {
+  if (!soundToggle) return;
+  soundToggle.setAttribute("aria-pressed", String(playing));
+  soundToggle.setAttribute("aria-label", playing ? "Desativar som" : "Ativar som");
+  if (soundIcon) soundIcon.textContent = playing ? "🔊" : "🔇";
+}
+
+async function startSound({ remember = true } = {}) {
+  if (!palaceAudio || document.hidden) return false;
+  try {
+    await palaceAudio.play();
+    soundEnabled = true;
+    soundStarted = true;
+    pausedForVisibility = false;
+    if (remember) rememberSound("on");
+    renderSoundState(true);
+    return true;
+  } catch {
+    soundEnabled = false;
+    pausedForVisibility = false;
+    if (remember) rememberSound("off");
+    renderSoundState(false);
+    return false;
+  }
+}
+
+function stopSound({ remember = true } = {}) {
+  palaceAudio?.pause();
+  soundEnabled = false;
+  pausedForVisibility = false;
+  if (remember) rememberSound("off");
+  renderSoundState(false);
+}
+
+soundToggle?.addEventListener("click", () => {
+  if (soundEnabled && soundStarted && palaceAudio && !palaceAudio.paused) stopSound();
+  else startSound();
+});
+
+palaceAudio?.addEventListener("error", () => {
+  soundEnabled = false;
+  pausedForVisibility = false;
+  renderSoundState(false);
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (!palaceAudio || !soundStarted) return;
+  if (document.hidden && soundEnabled && !palaceAudio.paused) {
+    palaceAudio.pause();
+    pausedForVisibility = true;
+    renderSoundState(false);
+  } else if (!document.hidden && soundEnabled && pausedForVisibility) {
+    startSound({ remember: false });
+  }
+});
 
 function hasSeenIntro() {
   try { return localStorage.getItem(STORAGE_KEY) === "seen"; } catch { return false; }
@@ -118,7 +189,10 @@ function scrollToResult(target) {
   target?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "center" });
 }
 
-document.querySelector("[data-enter]")?.addEventListener("click", showRevelation);
+document.querySelector("[data-enter]")?.addEventListener("click", () => {
+  showRevelation();
+  if (soundEnabled) startSound();
+});
 document.querySelector("[data-skip]")?.addEventListener("click", () => finishIntro());
 discoverButton?.addEventListener("click", () => finishIntro());
 document.querySelector("[data-skip-revelation]")?.addEventListener("click", () => finishIntro());
