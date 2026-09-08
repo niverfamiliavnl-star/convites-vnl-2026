@@ -123,23 +123,40 @@ export function initInvitation({ origin }) {
     return;
   }
 
-  let pendingRequestId = crypto.randomUUID();
-  requestInput.value = pendingRequestId;
-  setStatus(status, "Verificando a disponibilidade da confirmação…");
+  let statusRequestId = null;
+  let submitRequestId = null;
+  let statusTimeout = null;
+  let submitTimeout = null;
 
-  const initialTimeout = window.setTimeout(() => {
+  function startStatusCheck() {
+    statusRequestId = crypto.randomUUID();
+    requestInput.value = statusRequestId;
     setFormEnabled(form, false);
-    setStatus(status, "Não foi possível confirmar a disponibilidade agora. Tente novamente.", "error");
-  }, RSVP.responseTimeoutMs);
+    setStatus(status, "Verificando a disponibilidade da confirmação…");
+    window.clearTimeout(statusTimeout);
+    statusTimeout = window.setTimeout(() => {
+      if (submitRequestId) return;
+      setFormEnabled(form, false);
+      status.dataset.tone = "error";
+      status.innerHTML = "Não foi possível confirmar a disponibilidade agora. <button type=\"button\" data-rsvp-retry>Tentar novamente</button>";
+      status.querySelector("[data-rsvp-retry]").addEventListener("click", startStatusCheck, { once: true });
+    }, RSVP.statusTimeoutMs);
+    frame.src = buildStatusUrl(statusRequestId);
+  }
 
   window.addEventListener("message", (event) => {
     // Apps Script renders HtmlService inside nested Google iframes, so the
     // message source is the inner frame rather than the form target itself.
     if (!isTrustedBackendOrigin(event.origin)) return;
     const data = event.data;
-    if (!data || data.type !== RESULT_TYPE || data.request_id !== pendingRequestId || !VALID_CODES.has(data.code)) return;
+    if (!data || data.type !== RESULT_TYPE || !VALID_CODES.has(data.code)) return;
+    if (data.code === "STATUS") {
+      if (data.request_id !== statusRequestId || submitRequestId) return;
+    } else if (data.request_id !== submitRequestId) {
+      return;
+    }
 
-    window.clearTimeout(initialTimeout);
+    if (data.code === "STATUS") window.clearTimeout(statusTimeout);
     if (data.code === "STATUS") {
       if (data.rsvp_open) {
         setFormEnabled(form, true);
@@ -158,11 +175,13 @@ export function initInvitation({ origin }) {
       updatePresence();
       setStatus(status, "Resposta registrada. Obrigado por confirmar!", "success");
       setFormEnabled(form, true);
+      window.clearTimeout(submitTimeout);
+      submitRequestId = null;
       window.dispatchEvent(new CustomEvent("vnl:rsvp:recorded", {
         detail: { origin, presenca: presence, quantidade: partySize },
       }));
-      pendingRequestId = crypto.randomUUID();
-      requestInput.value = pendingRequestId;
+      statusRequestId = crypto.randomUUID();
+      requestInput.value = statusRequestId;
       return;
     }
 
@@ -179,11 +198,13 @@ export function initInvitation({ origin }) {
     };
     setFormEnabled(form, true);
     setStatus(status, messages[data.code] || messages.ERROR, "error");
+    window.clearTimeout(submitTimeout);
+    submitRequestId = null;
   });
 
   // Instale o listener antes de iniciar a navegação: endpoints rápidos podem
   // responder imediatamente e a mensagem não deve ser perdida.
-  frame.src = buildStatusUrl(pendingRequestId);
+  startStatusCheck();
 
   form.addEventListener("submit", (event) => {
     const canonicalPhone = normalizeClientPhone(form.elements.namedItem("telefone").value);
@@ -198,15 +219,19 @@ export function initInvitation({ origin }) {
       form.reportValidity();
       return;
     }
+    submitRequestId = crypto.randomUUID();
+    requestInput.value = submitRequestId;
     form.querySelector('button[type="submit"]').disabled = true;
     form.setAttribute("aria-busy", "true");
     setStatus(status, "Enviando sua resposta…");
-    window.setTimeout(() => {
+    window.clearTimeout(submitTimeout);
+    submitTimeout = window.setTimeout(() => {
       if (form.getAttribute("aria-busy") === "true") {
         setFormEnabled(form, true);
+        submitRequestId = null;
         setStatus(status, "A resposta demorou mais que o esperado. Confira a conexão antes de reenviar.", "error");
       }
-    }, RSVP.responseTimeoutMs);
+    }, RSVP.submitTimeoutMs);
   });
 }
 

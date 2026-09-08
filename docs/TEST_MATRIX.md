@@ -128,6 +128,13 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - A produção permaneceu sem respostas: `RESPOSTAS` e `CONSOLIDADO` somente com cabeçalhos; `PAINEL` com todas as métricas em zero e sem data de atualização.
 - Nenhuma alteração ou implantação foi feita em produção e nenhum GitHub Pages foi publicado.
 
+## Hotfix de latência do RSVP — 08/09/2026
+
+- A verificação inicial passou a aguardar 30 segundos; a submissão aguarda 45 segundos, com estados e `request_id` separados.
+- Respostas `STATUS` atrasadas não interferem em envios já iniciados; o botão de envio permanece desabilitado durante a submissão.
+- O cliente só exibe sucesso após `RECORDED` com `ok=true`. Ausência total de retorno não produz falso sucesso e mantém o envio bloqueado, com opção de nova tentativa.
+- Regressão aprovada: 32 testes unitários e 42 testes de navegador (Chromium desktop e perfil móvel), incluindo resposta após 13 segundos e ausência total de resposta.
+
 ## Evidências da ativação controlada de produção — 08/09/2026
 
 - O Web App de produção foi implantado na versão 1, executando como `niver.familia.vnl@gmail.com`, com acesso anônimo habilitado para o RSVP; a planilha de produção continuou privada.

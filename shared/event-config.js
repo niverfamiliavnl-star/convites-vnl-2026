@@ -21,7 +21,8 @@ export const RSVP = Object.freeze({
   endpoint: "https://script.google.com/macros/s/AKfycbxn8236bdwZyyfn5xs9MnCzCtgrJTm01epTT-HzgKYesYhXdpJZtxJTloftQfyj_s5fiA/exec",
   minPartySize: 1,
   maxPartySize: 20,
-  responseTimeoutMs: 12000,
+  statusTimeoutMs: 30000,
+  submitTimeoutMs: 45000,
 });
 
 export const ORIGINS = Object.freeze(["HANNAH", "NOAH", "VAGNER"]);

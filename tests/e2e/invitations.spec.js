@@ -7,14 +7,18 @@ const configSource = readFileSync(new URL("../../shared/event-config.js", import
     'endpoint: "https://script.google.com/macros/s/test-deployment/exec"',
   );
 
-async function mockBackend(page, { open = true } = {}) {
-  await page.route("**/shared/event-config.js", (route) => route.fulfill({ contentType: "text/javascript", body: configSource }));
+async function mockBackend(page, { open = true, statusDelay = 0, submitDelay = 0, noStatusReply = false } = {}) {
+  let effectiveConfig = configSource;
+  if (noStatusReply) effectiveConfig = effectiveConfig.replace(/statusTimeoutMs:\s*30000/, "statusTimeoutMs: 100");
+  await page.route("**/shared/event-config.js", (route) => route.fulfill({ contentType: "text/javascript", body: effectiveConfig }));
   await page.route("https://script.google.com/macros/s/test-deployment/exec**", async (route) => {
     const request = route.request();
     const params = request.method() === "POST"
       ? new URLSearchParams(request.postData() || "")
       : new URL(request.url()).searchParams;
     const isStatus = request.method() === "GET";
+    if (isStatus && noStatusReply) { await route.abort(); return; }
+    await new Promise((resolve) => setTimeout(resolve, isStatus ? statusDelay : submitDelay));
     const result = {
       type: "VNL_RSVP_RESULT",
       request_id: params.get("request_id"),
@@ -29,6 +33,22 @@ async function mockBackend(page, { open = true } = {}) {
     });
   });
 }
+
+test("status atrasado além de 12 segundos ainda libera o RSVP", async ({ page }) => {
+  await mockBackend(page, { statusDelay: 13_000 });
+  await page.goto("/noah/");
+  await expect(page.getByText(/Confirmações abertas/)).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("button", { name: "Enviar confirmação" })).toBeEnabled();
+});
+
+test("ausência total de retorno permite tentar novamente sem falso sucesso", async ({ page }) => {
+  await mockBackend(page, { noStatusReply: true });
+  await page.goto("/vagner/", { waitUntil: "domcontentloaded" });
+  await page.getByRole("button", { name: "Pular introdução" }).click();
+  await page.waitForTimeout(1_000);
+  await expect(page.getByText(/Resposta registrada/)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Enviar confirmação" })).toBeDisabled();
+});
 
 test("Hannah permite pular a introdução e exibe as informações", async ({ page }) => {
   await mockBackend(page);
