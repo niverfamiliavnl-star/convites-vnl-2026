@@ -34,8 +34,8 @@ async function mockBackend(page, { open = true, statusDelay = 0, submitDelay = 0
   });
 }
 
-async function mockAudio(page, { rejectPlay = false, controllableVisibility = false } = {}) {
-  await page.addInitScript(({ rejectPlay, controllableVisibility }) => {
+async function mockAudio(page, { rejectPlay = false, rejectPlayOnce = false, controllableVisibility = false } = {}) {
+  await page.addInitScript(({ rejectPlay, rejectPlayOnce, controllableVisibility }) => {
     window.__audioPlayCalls = 0;
     window.__audioPauseCalls = 0;
     if (controllableVisibility) {
@@ -51,7 +51,9 @@ async function mockAudio(page, { rejectPlay = false, controllableVisibility = fa
     });
     HTMLMediaElement.prototype.play = function play() {
       window.__audioPlayCalls += 1;
-      if (rejectPlay) return Promise.reject(new DOMException("blocked", "NotAllowedError"));
+      if (rejectPlay || (rejectPlayOnce && window.__audioPlayCalls === 1)) {
+        return Promise.reject(new DOMException("blocked", "NotAllowedError"));
+      }
       this.dataset.testPlaying = "true";
       return Promise.resolve();
     };
@@ -59,7 +61,7 @@ async function mockAudio(page, { rejectPlay = false, controllableVisibility = fa
       window.__audioPauseCalls += 1;
       this.dataset.testPlaying = "false";
     };
-  }, { rejectPlay, controllableVisibility });
+  }, { rejectPlay, rejectPlayOnce, controllableVisibility });
 }
 
 test("Hannah inicia silenciosa e ativa uma única trilha pelo gesto de entrada", async ({ page }) => {
@@ -72,7 +74,9 @@ test("Hannah inicia silenciosa e ativa uma única trilha pelo gesto de entrada",
   await expect(audio).toHaveJSProperty("loop", true);
   await expect(audio).toHaveJSProperty("volume", 0.18);
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(toggle).toHaveAttribute("aria-label", "Reproduzir som");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBeNull();
 
   await page.getByRole("button", { name: "Entrar no Palácio" }).click();
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(1);
@@ -106,19 +110,26 @@ test("refresh preserva a preferência sem autoplay nem áudio duplicado", async 
   await page.reload();
   await expect(page.locator("[data-palace-audio]")).toHaveCount(1);
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
-  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Reproduzir som");
   expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
 });
 
 test("bloqueio de play e erro do MP3 não interrompem a experiência", async ({ page }) => {
-  await mockAudio(page, { rejectPlay: true });
+  await mockAudio(page, { rejectPlayOnce: true });
   await mockBackend(page);
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Entrar no Palácio" }).click();
   await expect(page.getByRole("heading", { name: "Você recebeu um convite muito especial." })).toBeVisible();
   await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("off");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar reproduzir som");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBeNull();
+  await page.locator("[data-sound-toggle]").click();
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
   await page.locator("[data-palace-audio]").dispatchEvent("error");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar reproduzir som");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
   await page.getByRole("button", { name: "Descobrir o convite" }).click();
   await expect(page.getByRole("heading", { name: "Hannah Lis faz 7 anos" })).toBeVisible();
 });
@@ -135,7 +146,8 @@ test("visibilidade da página pausa e retoma somente quando habilitado", async (
     window.__documentHidden = true;
     document.dispatchEvent(new Event("visibilitychange"));
   });
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
   expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
   await page.evaluate(() => {
     window.__documentHidden = false;
@@ -178,10 +190,28 @@ test("Hannah conclui a entrada pelo caminho principal", async ({ page }) => {
   await mockBackend(page);
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Entrar no Palácio" }).click();
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "leaving");
+  await expect(page.locator("[data-revelation]")).toHaveAttribute("aria-hidden", "true");
+  await page.waitForTimeout(500);
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "leaving");
+  await expect(page.getByRole("button", { name: "Descobrir o convite", includeHidden: true })).not.toBeFocused();
   await expect(page.getByRole("heading", { name: "Você recebeu um convite muito especial." })).toBeVisible();
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
+  await expect(page.getByRole("button", { name: "Descobrir o convite" })).toBeFocused();
   await page.getByRole("button", { name: "Descobrir o convite" }).click();
   await expect(page.locator("[data-content]")).toBeFocused();
+});
+
+test("Hannah respeita mute persistido e CTA não altera a preferência", async ({ page }) => {
+  await mockAudio(page);
+  await mockBackend(page);
+  await page.addInitScript(() => localStorage.setItem("vnl_hannah_sound", "off"));
+  await page.goto("/hannah/");
+  const toggle = page.locator("[data-sound-toggle]");
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("button", { name: "Entrar no Palácio" }).click();
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("off");
 });
 
 test("Hannah fecha o bottom sheet com ESC e devolve o foco", async ({ page }) => {
@@ -328,7 +358,9 @@ test("Vagner inicia silencioso e ativa uma única trilha pelo gesto de entrada",
   await expect(audio).toHaveJSProperty("loop", true);
   await expect(audio).toHaveJSProperty("volume", 0.16);
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(toggle).toHaveAttribute("aria-label", "Reproduzir som");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBeNull();
   await page.getByRole("button", { name: "Entrar na celebração" }).click();
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(1);
   await expect(toggle).toHaveAttribute("aria-pressed", "true");
@@ -374,19 +406,26 @@ test("Vagner respeita preferência desligada e refresh não provoca autoplay", a
   await page.reload();
   await expect(page.locator("[data-vagner-audio]")).toHaveCount(1);
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
-  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Reproduzir som");
   expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
 });
 
 test("falhas do áudio do Vagner não interrompem convite, Maps ou RSVP", async ({ page }) => {
-  await mockAudio(page, { rejectPlay: true });
+  await mockAudio(page, { rejectPlayOnce: true });
   await mockBackend(page);
   await page.goto("/vagner/");
   await page.getByRole("button", { name: "Entrar na celebração" }).click();
   await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
   await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("off");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar reproduzir som");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBeNull();
+  await page.locator("[data-sound-toggle]").click();
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
   await page.locator("[data-vagner-audio]").dispatchEvent("error");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar reproduzir som");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
   await page.getByRole("button", { name: "Ver o convite" }).click();
   await expect(page.getByRole("link", { name: "Abrir no Google Maps" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Enviar confirmação" })).toBeEnabled();
@@ -404,7 +443,8 @@ test("visibilidade pausa e retoma o áudio do Vagner somente quando habilitado",
     window.__documentHidden = true;
     document.dispatchEvent(new Event("visibilitychange"));
   });
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
   expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
   await page.evaluate(() => {
     window.__documentHidden = false;
@@ -456,6 +496,8 @@ test("Vagner percorre chegada, identidade e convite pelo caminho principal", asy
   await expect(page.locator('[data-scene="1"]')).toHaveAttribute("data-active", "true");
   await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
   await expect(page.getByText("Uma vida para agradecer.")).toBeVisible();
+  await page.waitForTimeout(500);
+  await expect(page.getByRole("button", { name: "Ver o convite" })).not.toBeFocused();
   await expect(page.getByRole("button", { name: "Ver o convite" })).toBeFocused();
   await page.getByRole("button", { name: "Ver o convite" }).click();
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");

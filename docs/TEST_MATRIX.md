@@ -212,3 +212,13 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - O controle preserva somente `vnl_vagner_sound=on|off`; refresh não produz autoplay. Ocultar a página pausa a faixa e o retorno só retoma do mesmo ponto quando o som continua habilitado.
 - Rejeição de `play()` e erro do MP3 mantêm convite, Maps e RSVP funcionais, refletem o som como desligado e permitem nova tentativa por gesto.
 - A cobertura automatizada valida silêncio inicial, volume, loop, instância única, preferência, teclado, mute, retomada, continuidade, refresh, visibilidade e falhas seguras.
+
+## Hotfix de áudio, transições e limpeza da produção — 08/09/2026
+
+- A limpeza controlada esvaziou somente as células das três respostas manuais autorizadas, preservando linhas físicas, cabeçalhos, abas, proteções e qualquer registro adicional: `1c100172-4c7c-4209-afe6-c2002ed1a4cc` (08:14:08, `HANNAH`), `56c06148-c918-4b96-b513-07c9debc6f4d` (08:15:37, `NOAH`) e `317a95c8-64ad-4302-8459-defacba2cde0` (08:17:38, `VAGNER`).
+- `CONSOLIDADO` ficou sem respostas vigentes associadas a esses IDs. O `PAINEL` recalculou confirmações, pessoas, recusas e pessoas por origem para zero, com “Última atualização” vazia; a planilha permaneceu privada.
+- Hannah e Vagner agora tratam chave ausente ou preferência `on` como som logicamente ativado: o controle inicia em 🔊 e `aria-pressed=true`, mas a página permanece silenciosa até um gesto. Somente o controle explícito grava `on/off`; o CTA não altera a preferência.
+- Rejeições de `play()` e erros do arquivo não gravam mute, exibem estado de nova tentativa e mantêm a jornada e o RSVP funcionais. Pausa por visibilidade preserva o estado lógico e a preferência.
+- As transições iniciais de Hannah e Vagner foram sincronizadas em 1.100 ms, com foco transferido somente ao final. `prefers-reduced-motion` elimina movimento e espera cinematográfica.
+- Testes focados de áudio e transição: 13 aprovados. Suíte unitária: 32 aprovados. Regressão E2E: 66 aprovados em Chromium desktop e Pixel 7, incluindo Maps, RSVP simulado, origens, backend indisponível e ausência de falso sucesso.
+- A inspeção visual local aprovou as duas transições em desktop e 390×844, sem tela branca, quebra de layout ou perda dos controles. A auditoria confirmou `shared/`, `backend/`, Noah e workflow sem alterações.

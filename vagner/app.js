@@ -3,7 +3,7 @@ import { initInvitation } from "../shared/invitation.js";
 const STORAGE_KEY = "vnl:vagner:intro";
 const SOUND_STORAGE_KEY = "vnl_vagner_sound";
 const SOUND_VOLUME = 0.16;
-const TRANSITION_MS = 700;
+const TRANSITION_MS = 1100;
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const intro = document.querySelector("[data-intro]");
 const arrival = document.querySelector('[data-scene="0"]');
@@ -17,6 +17,7 @@ const soundIcon = document.querySelector("[data-sound-icon]");
 let transitionTimer;
 let soundEnabled = true;
 let soundStarted = false;
+let soundNeedsRetry = false;
 let pausedForVisibility = false;
 
 try { soundEnabled = localStorage.getItem(SOUND_STORAGE_KEY) !== "off"; } catch { /* Preferência opcional. */ }
@@ -26,32 +27,38 @@ function rememberSound(value) {
   try { localStorage.setItem(SOUND_STORAGE_KEY, value); } catch { /* A experiência continua sem persistência local. */ }
 }
 
-function renderSoundState(playing = false) {
+function renderSoundState() {
   if (!soundToggle) return;
-  soundToggle.setAttribute("aria-pressed", String(playing));
-  soundToggle.setAttribute("aria-label", playing ? "Desativar som" : "Ativar som");
-  if (soundIcon) soundIcon.textContent = playing ? "🔊" : "🔇";
+  const logicallyOn = soundEnabled && !soundNeedsRetry;
+  const playing = soundStarted && vagnerAudio && !vagnerAudio.paused;
+  soundToggle.setAttribute("aria-pressed", String(logicallyOn));
+  soundToggle.setAttribute(
+    "aria-label",
+    !soundEnabled ? "Ativar som" : soundNeedsRetry ? "Tentar reproduzir som" : playing ? "Desativar som" : "Reproduzir som",
+  );
+  if (soundIcon) soundIcon.textContent = logicallyOn ? "🔊" : "🔇";
 }
 
 async function startSound({ remember = true } = {}) {
   if (!vagnerAudio || document.hidden) return false;
   if (soundStarted && !vagnerAudio.paused) {
-    renderSoundState(true);
+    soundNeedsRetry = false;
+    renderSoundState();
     return true;
   }
   try {
     await vagnerAudio.play();
     soundEnabled = true;
     soundStarted = true;
+    soundNeedsRetry = false;
     pausedForVisibility = false;
     if (remember) rememberSound("on");
-    renderSoundState(true);
+    renderSoundState();
     return true;
   } catch {
-    soundEnabled = false;
+    soundNeedsRetry = true;
     pausedForVisibility = false;
-    if (remember) rememberSound("off");
-    renderSoundState(false);
+    renderSoundState();
     return false;
   }
 }
@@ -59,9 +66,10 @@ async function startSound({ remember = true } = {}) {
 function stopSound({ remember = true } = {}) {
   vagnerAudio?.pause();
   soundEnabled = false;
+  soundNeedsRetry = false;
   pausedForVisibility = false;
   if (remember) rememberSound("off");
-  renderSoundState(false);
+  renderSoundState();
 }
 
 soundToggle?.addEventListener("click", () => {
@@ -70,10 +78,9 @@ soundToggle?.addEventListener("click", () => {
 });
 
 vagnerAudio?.addEventListener("error", () => {
-  soundEnabled = false;
+  soundNeedsRetry = true;
   pausedForVisibility = false;
-  rememberSound("off");
-  renderSoundState(false);
+  renderSoundState();
 });
 
 document.addEventListener("visibilitychange", () => {
@@ -81,11 +88,13 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden && soundEnabled && !vagnerAudio.paused) {
     vagnerAudio.pause();
     pausedForVisibility = true;
-    renderSoundState(false);
+    renderSoundState();
   } else if (!document.hidden && soundEnabled && pausedForVisibility) {
     startSound({ remember: false });
   }
 });
+
+renderSoundState();
 
 function hasSeenIntro() {
   try { return localStorage.getItem(STORAGE_KEY) === "seen"; } catch { return false; }
@@ -163,8 +172,8 @@ function replayIntro() {
 }
 
 enterButton?.addEventListener("click", () => {
+  if (soundEnabled) startSound({ remember: false });
   showIdentity();
-  if (soundEnabled) startSound();
 });
 finishButton?.addEventListener("click", () => finishIntro());
 document.querySelector("[data-skip]")?.addEventListener("click", () => finishIntro());

@@ -3,6 +3,7 @@ import { initInvitation } from "../shared/invitation.js";
 const STORAGE_KEY = "vnl:hannah:intro";
 const SOUND_STORAGE_KEY = "vnl_hannah_sound";
 const SOUND_VOLUME = 0.18;
+const TRANSITION_MS = 1100;
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const intro = document.querySelector("[data-intro]");
 const content = document.querySelector("[data-content]");
@@ -19,8 +20,10 @@ const soundIcon = document.querySelector("[data-sound-icon]");
 let returnFocus = null;
 let sheetFocusTimer = null;
 let contentFocusTimer = null;
+let revelationTimer = null;
 let soundEnabled = true;
 let soundStarted = false;
+let soundNeedsRetry = false;
 let pausedForVisibility = false;
 
 try { soundEnabled = localStorage.getItem(SOUND_STORAGE_KEY) !== "off"; } catch { /* Preferência opcional. */ }
@@ -30,28 +33,38 @@ function rememberSound(value) {
   try { localStorage.setItem(SOUND_STORAGE_KEY, value); } catch { /* A experiência continua sem persistência local. */ }
 }
 
-function renderSoundState(playing = false) {
+function renderSoundState() {
   if (!soundToggle) return;
-  soundToggle.setAttribute("aria-pressed", String(playing));
-  soundToggle.setAttribute("aria-label", playing ? "Desativar som" : "Ativar som");
-  if (soundIcon) soundIcon.textContent = playing ? "🔊" : "🔇";
+  const logicallyOn = soundEnabled && !soundNeedsRetry;
+  const playing = soundStarted && palaceAudio && !palaceAudio.paused;
+  soundToggle.setAttribute("aria-pressed", String(logicallyOn));
+  soundToggle.setAttribute(
+    "aria-label",
+    !soundEnabled ? "Ativar som" : soundNeedsRetry ? "Tentar reproduzir som" : playing ? "Desativar som" : "Reproduzir som",
+  );
+  if (soundIcon) soundIcon.textContent = logicallyOn ? "🔊" : "🔇";
 }
 
 async function startSound({ remember = true } = {}) {
   if (!palaceAudio || document.hidden) return false;
+  if (soundStarted && !palaceAudio.paused) {
+    soundNeedsRetry = false;
+    renderSoundState();
+    return true;
+  }
   try {
     await palaceAudio.play();
     soundEnabled = true;
     soundStarted = true;
+    soundNeedsRetry = false;
     pausedForVisibility = false;
     if (remember) rememberSound("on");
-    renderSoundState(true);
+    renderSoundState();
     return true;
   } catch {
-    soundEnabled = false;
+    soundNeedsRetry = true;
     pausedForVisibility = false;
-    if (remember) rememberSound("off");
-    renderSoundState(false);
+    renderSoundState();
     return false;
   }
 }
@@ -59,9 +72,10 @@ async function startSound({ remember = true } = {}) {
 function stopSound({ remember = true } = {}) {
   palaceAudio?.pause();
   soundEnabled = false;
+  soundNeedsRetry = false;
   pausedForVisibility = false;
   if (remember) rememberSound("off");
-  renderSoundState(false);
+  renderSoundState();
 }
 
 soundToggle?.addEventListener("click", () => {
@@ -70,9 +84,9 @@ soundToggle?.addEventListener("click", () => {
 });
 
 palaceAudio?.addEventListener("error", () => {
-  soundEnabled = false;
+  soundNeedsRetry = true;
   pausedForVisibility = false;
-  renderSoundState(false);
+  renderSoundState();
 });
 
 document.addEventListener("visibilitychange", () => {
@@ -80,11 +94,13 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden && soundEnabled && !palaceAudio.paused) {
     palaceAudio.pause();
     pausedForVisibility = true;
-    renderSoundState(false);
+    renderSoundState();
   } else if (!document.hidden && soundEnabled && pausedForVisibility) {
     startSound({ remember: false });
   }
 });
+
+renderSoundState();
 
 function hasSeenIntro() {
   try { return localStorage.getItem(STORAGE_KEY) === "seen"; } catch { return false; }
@@ -92,6 +108,11 @@ function hasSeenIntro() {
 
 function rememberIntro() {
   try { localStorage.setItem(STORAGE_KEY, "seen"); } catch { /* A experiência continua sem persistência local. */ }
+}
+
+function clearRevelationTransition() {
+  window.clearTimeout(revelationTimer);
+  revelationTimer = null;
 }
 
 function focusContent() {
@@ -103,6 +124,7 @@ function focusContent() {
 }
 
 function finishIntro({ focus = true } = {}) {
+  clearRevelationTransition();
   rememberIntro();
   if (intro) {
     intro.dataset.state = "complete";
@@ -110,7 +132,10 @@ function finishIntro({ focus = true } = {}) {
   }
   if (revelation) {
     revelation.hidden = true;
+    revelation.dataset.state = "complete";
+    revelation.dataset.active = "false";
     revelation.setAttribute("aria-hidden", "true");
+    revelation.setAttribute("inert", "");
   }
   document.body.classList.remove("modal-open");
   content?.removeAttribute("inert");
@@ -123,14 +148,35 @@ function showRevelation() {
     finishIntro();
     return;
   }
-  if (intro) {
-    intro.dataset.state = "complete";
-    intro.setAttribute("aria-hidden", "true");
-  }
+  clearRevelationTransition();
+  if (intro) intro.dataset.state = reducedMotion ? "complete" : "leaving";
   revelation.hidden = false;
-  revelation.setAttribute("aria-hidden", "false");
+  revelation.dataset.state = reducedMotion ? "active" : "entering";
+  revelation.dataset.active = String(reducedMotion);
   document.body.classList.add("modal-open");
-  discoverButton?.focus();
+
+  const completeTransition = () => {
+    revelationTimer = null;
+    if (intro) {
+      intro.dataset.state = "complete";
+      intro.setAttribute("aria-hidden", "true");
+    }
+    revelation.dataset.state = "active";
+    revelation.dataset.active = "true";
+    revelation.setAttribute("aria-hidden", "false");
+    revelation.removeAttribute("inert");
+    discoverButton?.focus({ preventScroll: true });
+  };
+
+  if (reducedMotion) {
+    completeTransition();
+    return;
+  }
+
+  revelation.setAttribute("aria-hidden", "true");
+  revelation.setAttribute("inert", "");
+  window.requestAnimationFrame(() => { revelation.dataset.active = "true"; });
+  revelationTimer = window.setTimeout(completeTransition, TRANSITION_MS);
 }
 
 function focusFirstSheetField(attemptsLeft = 40) {
@@ -190,8 +236,8 @@ function scrollToResult(target) {
 }
 
 document.querySelector("[data-enter]")?.addEventListener("click", () => {
+  if (soundEnabled) startSound({ remember: false });
   showRevelation();
-  if (soundEnabled) startSound();
 });
 document.querySelector("[data-skip]")?.addEventListener("click", () => finishIntro());
 discoverButton?.addEventListener("click", () => finishIntro());

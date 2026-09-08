@@ -108,16 +108,32 @@
   overflow: hidden;
   color: #fff;
   background: #2e123f;
-  transition: opacity .7s cubic-bezier(.16, 1, .3, 1), visibility .7s;
+  transition: opacity 1.1s cubic-bezier(.22, .61, .36, 1), visibility 0s linear 1.1s;
 }
 
-.palace-intro[data-state="complete"] { visibility: hidden; opacity: 0; pointer-events: none; }
+.palace-intro[data-state="leaving"],
+.palace-intro[data-state="complete"] { opacity: 0; pointer-events: none; }
+.palace-intro[data-state="complete"] { visibility: hidden; }
 
 .intro-scenery,
 .intro-scenery img,
 .intro-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
 .intro-scenery { z-index: 0; }
-.intro-scenery img { object-fit: cover; object-position: center 35%; animation: hannah-scenery 16s ease-in-out infinite alternate; }
+.intro-scenery::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(255, 226, 143, .7), rgba(215, 163, 59, .1) 44%, transparent 72%);
+  content: "";
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+.intro-scenery img {
+  object-fit: cover;
+  object-position: center 35%;
+  animation: hannah-scenery 16s ease-in-out infinite alternate;
+  transition: filter 1.1s ease, transform 1.1s cubic-bezier(.22, .61, .36, 1);
+}
 .intro-shade {
   background:
     linear-gradient(180deg, rgba(36, 11, 49, .62) 0%, rgba(61, 24, 78, .12) 35%, rgba(31, 8, 42, .34) 64%, rgba(24, 7, 34, .92) 100%),
@@ -125,6 +141,19 @@
 }
 
 @keyframes hannah-scenery { from { transform: scale(1.01); } to { transform: scale(1.075); } }
+
+.palace-intro[data-state="leaving"] .intro-scenery::after { opacity: .78; }
+.palace-intro[data-state="leaving"] .intro-scenery img {
+  animation-play-state: paused;
+  filter: brightness(1.09) saturate(1.04);
+  transform: scale(1.11);
+}
+.palace-intro[data-state="leaving"] .intro-copy,
+.palace-intro[data-state="leaving"] .intro-character,
+.palace-intro[data-state="leaving"] .stardust { opacity: 0; }
+.intro-copy,
+.intro-character,
+.stardust { transition: opacity .72s ease; }
 
 .intro-character {
   position: absolute;
@@ -179,14 +208,38 @@
 .intro-date { margin: 7px 0 0; color: var(--hannah-gold-light); font-family: var(--hannah-serif); font-size: .84rem; letter-spacing: .22em; }
 
 /* Revelação */
-.revelation-modal { position: fixed; z-index: 95; inset: 0; display: grid; place-items: center; padding: 22px; }
+.revelation-modal {
+  position: fixed;
+  z-index: 95;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  opacity: 0;
+  transition: opacity 1.1s cubic-bezier(.22, .61, .36, 1);
+}
+.revelation-modal[data-active="true"] { opacity: 1; }
 .revelation-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: rgba(38, 11, 51, .88); backdrop-filter: blur(12px); }
-.revelation-card { position: relative; z-index: 1; width: min(430px, 100%); padding: clamp(30px, 7vw, 48px) 26px; border: 2px solid var(--hannah-gold); border-radius: 28px; color: #fff; background: linear-gradient(155deg, rgba(89, 35, 116, .98), rgba(39, 11, 54, .99)); box-shadow: 0 30px 80px rgba(18, 4, 25, .66); text-align: center; animation: hannah-reveal .36s cubic-bezier(.16, 1, .3, 1); }
+.revelation-card {
+  position: relative;
+  z-index: 1;
+  width: min(430px, 100%);
+  padding: clamp(30px, 7vw, 48px) 26px;
+  border: 2px solid var(--hannah-gold);
+  border-radius: 28px;
+  color: #fff;
+  background: linear-gradient(155deg, rgba(89, 35, 116, .98), rgba(39, 11, 54, .99));
+  box-shadow: 0 30px 80px rgba(18, 4, 25, .66);
+  opacity: 0;
+  text-align: center;
+  transform: translateY(16px) scale(.96);
+  transition: opacity .72s ease .22s, transform .9s cubic-bezier(.16, 1, .3, 1) .12s;
+}
+.revelation-modal[data-active="true"] .revelation-card { opacity: 1; transform: translateY(0) scale(1); }
 .revelation-crown { margin: 0 0 13px; color: var(--hannah-gold-light); font-size: 2.6rem; }
 .revelation-card h2 { margin: 0; color: var(--hannah-gold-light); font-family: var(--hannah-serif); font-size: clamp(1.45rem, 6vw, 2rem); line-height: 1.22; }
 .revelation-card > p:not(.revelation-crown) { margin: 14px 0 26px; }
 .discover-button { width: 100%; }
-@keyframes hannah-reveal { from { opacity: 0; transform: translateY(16px) scale(.94); } }
 
 /* Convite */
 .hannah-main { display: flex; width: min(640px, 100%); min-height: 100svh; margin-inline: auto; flex-direction: column; gap: 30px; padding: 42px 16px 60px; }
@@ -307,4 +360,13 @@
   .intro-character,
   .stardust i,
   .portrait-halo { animation: none !important; }
+  .palace-intro,
+  .intro-scenery::after,
+  .intro-scenery img,
+  .intro-copy,
+  .intro-character,
+  .stardust,
+  .revelation-modal,
+  .revelation-card { transition: none !important; }
+  .revelation-card { transform: none; }
 }
