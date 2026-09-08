@@ -25,6 +25,43 @@
 
 .vagner-body.modal-open { overflow: hidden; }
 
+.vagner-sound-toggle {
+  position: fixed;
+  z-index: 120;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+  display: inline-flex;
+  min-width: 76px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border: 1px solid rgba(255, 255, 255, .62);
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(0, 59, 43, .88);
+  box-shadow: 0 8px 24px rgba(0, 24, 18, .32);
+  backdrop-filter: blur(8px);
+  font: 750 .78rem/1 Arial, sans-serif;
+  letter-spacing: .02em;
+  cursor: pointer;
+}
+
+.vagner-sound-toggle[aria-pressed="true"] {
+  color: #003b2b;
+  border-color: rgba(255, 255, 255, .9);
+  background: linear-gradient(135deg, #fff, #edf7f1);
+  box-shadow: 0 0 0 2px rgba(30, 132, 73, .26), 0 8px 24px rgba(0, 24, 18, .3);
+}
+
+.vagner-sound-toggle:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.vagner-sound-toggle[aria-pressed="true"]:focus-visible { outline-color: #1e8449; }
+
 .stadium-intro {
   position: fixed;
   z-index: 30;

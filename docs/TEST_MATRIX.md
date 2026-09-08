@@ -204,3 +204,11 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - Testes focados de Vagner: 8 aprovados. Suíte unitária: 32 aprovados. Regressão E2E: 54 aprovados em Chromium desktop e mobile.
 - Maps, avisos, prazo, visitante recorrente, movimento reduzido, falha segura do backend e `origem=VAGNER` permaneceram cobertos.
 - `shared/`, `backend/`, Hannah, Noah, planilhas e Apps Script não foram alterados. Nenhum push ou publicação foi realizado.
+
+## Trilha opcional da rota Vagner — 08/09/2026
+
+- O MP3 aprovado foi copiado sem recompressão para `vagner/assets/trilha-vagner.mp3`: 3.964.760 bytes, aproximadamente 123,899 segundos, 256 kbps, estéreo e 44,1 kHz; SHA-256 `852721C24304A023A0BD302EFE8E01B6FD7D95D6804CEFC2B876A0C21F52CCF2`.
+- A página permanece silenciosa ao carregar. A reprodução em volume `0.16` depende do gesto em “Entrar na celebração” ou no controle explícito de som, usa uma única instância em loop e não reinicia entre as cenas.
+- O controle preserva somente `vnl_vagner_sound=on|off`; refresh não produz autoplay. Ocultar a página pausa a faixa e o retorno só retoma do mesmo ponto quando o som continua habilitado.
+- Rejeição de `play()` e erro do MP3 mantêm convite, Maps e RSVP funcionais, refletem o som como desligado e permitem nova tentativa por gesto.
+- A cobertura automatizada valida silêncio inicial, volume, loop, instância única, preferência, teclado, mute, retomada, continuidade, refresh, visibilidade e falhas seguras.

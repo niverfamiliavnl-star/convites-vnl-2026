@@ -318,12 +318,111 @@ test("Noah envia RSVP usando a origem correta", async ({ page }) => {
   expect(submitted.get("quantidade")).toBe("3");
 });
 
-test("Vagner destaca Josué 24:15 sem depender de áudio", async ({ page }) => {
+test("Vagner inicia silencioso e ativa uma única trilha pelo gesto de entrada", async ({ page }) => {
+  await mockAudio(page);
+  await mockBackend(page);
+  await page.goto("/vagner/");
+  const audio = page.locator("[data-vagner-audio]");
+  const toggle = page.locator("[data-sound-toggle]");
+  await expect(audio).toHaveCount(1);
+  await expect(audio).toHaveJSProperty("loop", true);
+  await expect(audio).toHaveJSProperty("volume", 0.16);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("button", { name: "Entrar na celebração" }).click();
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(1);
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(toggle).toHaveAttribute("aria-label", "Desativar som");
+});
+
+test("Vagner pausa, retoma e mantém a trilha entre as cenas", async ({ page }) => {
+  await mockAudio(page);
+  await mockBackend(page);
+  await page.goto("/vagner/");
+  const audio = page.locator("[data-vagner-audio]");
+  const toggle = page.locator("[data-sound-toggle]");
+  await toggle.focus();
+  await toggle.press("Space");
+  await audio.evaluate((element) => { element.currentTime = 19; });
+  await toggle.press("Space");
+  expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("off");
+  await toggle.press("Space");
+  await expect(audio).toHaveJSProperty("currentTime", 19);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
+  await page.getByRole("button", { name: "Entrar na celebração" }).click();
+  await page.getByRole("button", { name: "Ver o convite" }).click();
+  await expect(audio).toHaveJSProperty("currentTime", 19);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
+});
+
+test("Vagner respeita preferência desligada e refresh não provoca autoplay", async ({ page }) => {
+  await mockAudio(page);
+  await mockBackend(page);
+  await page.addInitScript(() => {
+    if (sessionStorage.getItem("vnl-test-sound-preference") !== "set") {
+      localStorage.setItem("vnl_vagner_sound", "off");
+      sessionStorage.setItem("vnl-test-sound-preference", "set");
+    }
+  });
+  await page.goto("/vagner/");
+  await page.getByRole("button", { name: "Entrar na celebração" }).click();
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
+  await page.locator("[data-sound-toggle]").click();
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(1);
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
+  await page.reload();
+  await expect(page.locator("[data-vagner-audio]")).toHaveCount(1);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
+});
+
+test("falhas do áudio do Vagner não interrompem convite, Maps ou RSVP", async ({ page }) => {
+  await mockAudio(page, { rejectPlay: true });
+  await mockBackend(page);
+  await page.goto("/vagner/");
+  await page.getByRole("button", { name: "Entrar na celebração" }).click();
+  await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("off");
+  await page.locator("[data-vagner-audio]").dispatchEvent("error");
+  await page.getByRole("button", { name: "Ver o convite" }).click();
+  await expect(page.getByRole("link", { name: "Abrir no Google Maps" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Enviar confirmação" })).toBeEnabled();
+});
+
+test("visibilidade pausa e retoma o áudio do Vagner somente quando habilitado", async ({ page }) => {
+  await mockAudio(page, { controllableVisibility: true });
+  await mockBackend(page);
+  await page.goto("/vagner/");
+  const audio = page.locator("[data-vagner-audio]");
+  const toggle = page.locator("[data-sound-toggle]");
+  await toggle.click();
+  await audio.evaluate((element) => { element.currentTime = 31; });
+  await page.evaluate(() => {
+    window.__documentHidden = true;
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(toggle).toHaveAttribute("aria-pressed", "false");
+  expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
+  await page.evaluate(() => {
+    window.__documentHidden = false;
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(audio).toHaveJSProperty("currentTime", 31);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
+});
+
+test("Vagner destaca Josué 24:15 com a trilha opcional", async ({ page }) => {
+  await mockAudio(page);
   await mockBackend(page);
   await page.goto("/vagner/");
   await page.getByRole("button", { name: "Pular introdução" }).click();
   await expect(page.locator("[data-verse]").getByText("Josué 24:15")).toBeVisible();
-  await expect(page.locator("audio")).toHaveCount(0);
+  await expect(page.locator("[data-vagner-audio]")).toHaveCount(1);
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
 });
 
 test("Vagner usa os dois assets aprovados e remove a direção visual anterior", async ({ page }) => {

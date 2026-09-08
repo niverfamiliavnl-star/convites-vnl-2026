@@ -14,6 +14,12 @@
   <body class="vagner-body modal-open">
     <a class="skip-link" href="#informacoes">Ir para as informações</a>
 
+    <button class="vagner-sound-toggle" type="button" data-sound-toggle aria-label="Ativar som" aria-pressed="false">
+      <span data-sound-icon aria-hidden="true">🔇</span>
+      <span data-sound-label>Som</span>
+    </button>
+    <audio data-vagner-audio src="./assets/trilha-vagner.mp3" preload="metadata" loop></audio>
+
     <header class="stadium-intro" data-intro data-state="arrival" aria-labelledby="arrival-title">
       <section class="stadium-scene stadium-scene--arrival" data-scene="0" data-active="true" aria-hidden="false">
         <img class="stadium-scene__image" src="./assets/vagner-stadium.webp" alt="Entrada de um estádio iluminado pelo pôr do sol" width="941" height="1672" fetchpriority="high" decoding="async">
