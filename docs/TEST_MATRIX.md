@@ -45,7 +45,7 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - [x] Rotas A e C permitem nova tentativa; somente a rota B desbloqueia o horário.
 - [x] Barra da Fé aceita 41%–59%, permite tentativas ilimitadas e mantém `aria-valuenow` observável; em movimento reduzido fica estável em 50%.
 - [x] “JOGAR NOVAMENTE” reinicia somente o jogo e preserva o formulário RSVP e as preferências locais.
-- [x] Áudio sintético usa Web Audio somente após gesto, persiste apenas `vnl_noah_sound=on|off` e falha sem interromper a jornada.
+- [x] Áudio sintético usa Web Audio somente após gesto e o mute vale apenas durante a sessão; chaves antigas são ignoradas.
 - [x] Controles principais, equipamentos e som são operáveis por teclado, com foco transferido entre as telas.
 - [x] Informações críticas e Maps possuem fallback estático sem JavaScript.
 - [x] Implementação usa apenas HTML, CSS e JavaScript.
@@ -141,7 +141,7 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 
 - O MP3 aprovado foi preservado sem recompressão em `hannah/assets/trilha-palacio.mp3`: 2.898.128 bytes, 256 kbps e duração estimada em aproximadamente 90,6 segundos.
 - A página abre silenciosa; “Entrar no Palácio” inicia uma única faixa em loop a volume `0.18` quando a preferência não está desativada.
-- O controle roxo/dourado informa o estado real, funciona por teclado, pausa e retoma sem reiniciar a faixa e usa somente `vnl_hannah_sound=on|off` no armazenamento local.
+- O controle roxo/dourado informa o estado da sessão, funciona por teclado e pausa/retoma sem reiniciar a faixa; nenhuma preferência de áudio é persistida.
 - Refresh não provoca autoplay nem cria outra instância. Rejeição de `play()`, erro do MP3 e mudança de visibilidade não interrompem o convite.
 - O artefato estático local incluiu o MP3 no caminho esperado, sem base64, hotlink, CDN ou dependência nova.
 - Testes específicos de áudio: 10 aprovados nos perfis desktop e móvel. Regressão completa: 32 testes unitários e 52 testes de navegador aprovados.
@@ -211,7 +211,7 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 
 - O MP3 aprovado foi copiado sem recompressão para `vagner/assets/trilha-vagner.mp3`: 3.964.760 bytes, aproximadamente 123,899 segundos, 256 kbps, estéreo e 44,1 kHz; SHA-256 `852721C24304A023A0BD302EFE8E01B6FD7D95D6804CEFC2B876A0C21F52CCF2`.
 - A página permanece silenciosa ao carregar. A reprodução em volume `0.16` depende do gesto em “Entrar na celebração” ou no controle explícito de som, usa uma única instância em loop e não reinicia entre as cenas.
-- O controle preserva somente `vnl_vagner_sound=on|off`; refresh não produz autoplay. Ocultar a página pausa a faixa e o retorno só retoma do mesmo ponto quando o som continua habilitado.
+- O controle não persiste preferência; refresh restaura som logicamente ligado sem autoplay. Ocultar a página pausa a faixa e o retorno só retoma do mesmo ponto quando o som continua habilitado na sessão.
 - Rejeição de `play()` e erro do MP3 mantêm convite, Maps e RSVP funcionais, refletem o som como desligado e permitem nova tentativa por gesto.
 - A cobertura automatizada valida silêncio inicial, volume, loop, instância única, preferência, teclado, mute, retomada, continuidade, refresh, visibilidade e falhas seguras.
 
@@ -237,7 +237,7 @@ Referência canônica: `C:/Users/leona/Downloads/heitor_noah_level_up_da_fe_site
 | Fase 2 — rotas A/B/C | SIM | Textos e ordem canônicos; A/C recuperáveis e B desbloqueia o horário. |
 | Fase 3 — Barra da Fé | SIM | Faixa válida 41%–59%, tentativas ilimitadas e local desbloqueado. |
 | Convite final e replay | SIM | Confete, progresso 100%, Maps, avisos e reinício apenas do jogo. |
-| Sons sintéticos | SIM | `OscillatorNode`/`GainNode`, gesto obrigatório e preferência `vnl_noah_sound`. |
+| Sons sintéticos | SIM | `OscillatorNode`/`GainNode`, gesto obrigatório e mute apenas na sessão. |
 | Movimento reduzido | SIM | Sem confete ou movimento decorativo; medidor estável em 50%. |
 | Formulário final | SIM | Google Forms foi deliberadamente substituído pelo RSVP VNL compartilhado, preservando `origem=NOAH`. |
 | Falha segura do backend | SIM | Sem falso sucesso; informações do evento continuam disponíveis. |
@@ -259,3 +259,15 @@ Referência canônica: `C:/Users/leona/Downloads/heitor_noah_level_up_da_fe_site
 - Design QA: rosto, capacete, escudo, espada, pés, transparência, contraste, hierarquia e ausência de overflow aprovados; nenhum P0, P1 ou P2 permanece. Relatório em `design-qa.md`, com `final result: passed`.
 - Testes focados Noah: 18 aprovados. Suíte unitária: 34 aprovados. A primeira regressão paralela teve quatro timeouts sob carga; a repetição integral sequencial aprovou 74/74 em Chromium desktop e Pixel 7.
 - `noah/app.js`, `shared/`, backend, Apps Script, planilhas, endpoint, Hannah, Vagner e workflow permaneceram congelados. Nenhum RSVP real, push, workflow ou publicação foi executado.
+
+## Hotfix final de introdução e áudio por sessão — 09/09/2026
+
+- Causa: Hannah e Vagner liam chaves persistidas de introdução e podiam concluir a abertura automaticamente; as três rotas também liam e gravavam preferências persistidas de mute.
+- Hannah e Vagner agora sempre começam na primeira cena, inclusive com cache quente, chaves antigas ou movimento reduzido. As transições continuam com 1.100 ms; em movimento reduzido, a cena inicial permanece obrigatória e a mudança após o gesto é imediata.
+- As três rotas carregam com som logicamente ligado e sem autoplay. Mute/unmute vale somente durante a sessão; chaves antigas permanecem intocadas, porém não são consultadas nem atualizadas.
+- Hannah e Vagner usam uma única trilha local em loop com `preload=auto`. Falha de reprodução mantém o som logicamente ligado, anuncia “Tentar iniciar som” e arma somente uma nova tentativa no próximo gesto confiável, excluindo o controle e “Pular introdução”.
+- Noah cria ou retoma o `AudioContext` dentro do gesto “ACEITAR MISSÃO”; o jogo e o RSVP permanecem independentes de falhas de Web Audio.
+- O replay do Vagner volta à chegada sem alterar o mute da sessão. Ocultar a página pausa a trilha e a retomada preserva o ponto quando a reprodução já havia começado.
+- Regressão E2E final sequencial: 74/74 aprovados em Chromium desktop e Pixel 7, sem timeout, cobrindo áudio, introduções, movimento reduzido, Maps, RSVP simulado, origens e falha segura.
+- Suíte unitária: 34/34 asserções aprovadas. O timeout em `onTaskUpdate` ocorreu somente depois da conclusão dos testes e foi classificado como falha do runner, sem regressão funcional.
+- Auditoria final confirmou diff zero em `backend/`, Apps Script, `shared/`, endpoint, contrato de payload e workflow do Pages. Nenhum RSVP real, push ou publicação foi executado.

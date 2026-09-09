@@ -167,29 +167,35 @@ test("controle de som pausa, retoma no mesmo ponto e funciona pelo teclado", asy
   await page.goto("/hannah/");
   const audio = page.locator("[data-palace-audio]");
   const toggle = page.locator("[data-sound-toggle]");
+  await page.getByRole("button", { name: "Entrar no Palácio" }).click();
+  await audio.evaluate((element) => { element.currentTime = 17; });
   await toggle.focus();
   await toggle.press("Space");
-  await audio.evaluate((element) => { element.currentTime = 17; });
-  await toggle.press("Space");
   expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
-  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("off");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBeNull();
   await toggle.press("Space");
   await expect(audio).toHaveJSProperty("currentTime", 17);
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
-  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBeNull();
 });
 
-test("refresh preserva a preferência sem autoplay nem áudio duplicado", async ({ page }) => {
+test("refresh restaura som ligado e primeira cena sem autoplay nem áudio duplicado", async ({ page }) => {
   await mockAudio(page);
   await mockBackend(page);
+  await page.addInitScript(() => {
+    localStorage.setItem("vnl_hannah_sound", "off");
+    localStorage.setItem("vnl:hannah:intro", "seen");
+  });
   await page.goto("/hannah/");
-  await page.locator("[data-sound-toggle]").click();
+  await expect(page.getByRole("button", { name: "Entrar no Palácio" })).toBeVisible();
   await page.reload();
   await expect(page.locator("[data-palace-audio]")).toHaveCount(1);
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
   await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Reproduzir som");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
+  await expect(page.getByRole("button", { name: "Entrar no Palácio" })).toBeVisible();
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("off");
+  expect(await page.evaluate(() => localStorage.getItem("vnl:hannah:intro"))).toBe("seen");
 });
 
 test("bloqueio de play e erro do MP3 não interrompem a experiência", async ({ page }) => {
@@ -198,16 +204,15 @@ test("bloqueio de play e erro do MP3 não interrompem a experiência", async ({ 
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Entrar no Palácio" }).click();
   await expect(page.getByRole("heading", { name: "Você recebeu um convite muito especial." })).toBeVisible();
-  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
-  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar reproduzir som");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBeNull();
-  await page.locator("[data-sound-toggle]").click();
   await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
-  await page.locator("[data-palace-audio]").dispatchEvent("error");
-  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar reproduzir som");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar iniciar som");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBeNull();
   await page.getByRole("button", { name: "Descobrir o convite" }).click();
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
+  await page.locator("[data-palace-audio]").dispatchEvent("error");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar iniciar som");
+  await page.getByRole("button", { name: "Confirmar presença" }).click();
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(3);
   await expect(page.getByRole("heading", { name: "Hannah Lis faz 7 anos" })).toBeVisible();
 });
 
@@ -217,14 +222,14 @@ test("visibilidade da página pausa e retoma somente quando habilitado", async (
   await page.goto("/hannah/");
   const audio = page.locator("[data-palace-audio]");
   const toggle = page.locator("[data-sound-toggle]");
-  await toggle.click();
+  await page.getByRole("button", { name: "Entrar no Palácio" }).click();
   await audio.evaluate((element) => { element.currentTime = 23; });
   await page.evaluate(() => {
     window.__documentHidden = true;
     document.dispatchEvent(new Event("visibilitychange"));
   });
   await expect(toggle).toHaveAttribute("aria-pressed", "true");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("on");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBeNull();
   expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
   await page.evaluate(() => {
     window.__documentHidden = false;
@@ -270,9 +275,6 @@ test("Hannah conclui a entrada pelo caminho principal", async ({ page }) => {
   await page.getByRole("button", { name: "Entrar no Palácio" }).click();
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "leaving");
   await expect(page.locator("[data-revelation]")).toHaveAttribute("aria-hidden", "true");
-  await page.waitForTimeout(500);
-  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "leaving");
-  await expect(page.getByRole("button", { name: "Descobrir o convite", includeHidden: true })).not.toBeFocused();
   await expect(page.getByRole("heading", { name: "Você recebeu um convite muito especial." })).toBeVisible();
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
   await expect(page.getByRole("button", { name: "Descobrir o convite" })).toBeFocused();
@@ -280,16 +282,21 @@ test("Hannah conclui a entrada pelo caminho principal", async ({ page }) => {
   await expect(page.locator("[data-content]")).toBeFocused();
 });
 
-test("Hannah respeita mute persistido e CTA não altera a preferência", async ({ page }) => {
+test("Hannah ignora preferências antigas e pular não inicia áudio", async ({ page }) => {
   await mockAudio(page);
   await mockBackend(page);
-  await page.addInitScript(() => localStorage.setItem("vnl_hannah_sound", "off"));
+  await page.addInitScript(() => {
+    localStorage.setItem("vnl_hannah_sound", "off");
+    localStorage.setItem("vnl:hannah:intro", "seen");
+  });
   await page.goto("/hannah/");
   const toggle = page.locator("[data-sound-toggle]");
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
-  await page.getByRole("button", { name: "Entrar no Palácio" }).click();
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "Entrar no Palácio" })).toBeVisible();
+  await page.getByRole("button", { name: "Pular introdução" }).click();
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
   expect(await page.evaluate(() => localStorage.getItem("vnl_hannah_sound"))).toBe("off");
+  expect(await page.evaluate(() => localStorage.getItem("vnl:hannah:intro"))).toBe("seen");
 });
 
 test("Hannah fecha o bottom sheet com ESC e devolve o foco", async ({ page }) => {
@@ -439,14 +446,15 @@ test("Noah conclui o jogo, preserva o RSVP e reinicia apenas o estado local", as
   await expect(page.locator(".confetti-piece")).toHaveCount(0);
 });
 
-test("Noah começa logicamente com som ligado, não faz autoplay e persiste mute", async ({ page }) => {
+test("Noah ignora mute antigo e mantém mute somente na sessão", async ({ page }) => {
   await mockWebAudio(page);
   await mockBackend(page);
+  await page.addInitScript(() => localStorage.setItem("vnl_noah_sound", "off"));
   await page.goto("/noah/");
   const toggle = page.locator("[data-sound-toggle]");
   await expect(toggle).toHaveAttribute("aria-pressed", "true");
   expect(await page.evaluate(() => window.__noahAudioContexts)).toBe(0);
-  expect(await page.evaluate(() => localStorage.getItem("vnl_noah_sound"))).toBeNull();
+  expect(await page.evaluate(() => localStorage.getItem("vnl_noah_sound"))).toBe("off");
   await page.getByRole("button", { name: "ACEITAR MISSÃO" }).click();
   await expect.poll(() => page.evaluate(() => window.__noahAudioStarts)).toBeGreaterThan(0);
   expect(await page.evaluate(() => window.__noahAudioContexts)).toBe(1);
@@ -455,8 +463,9 @@ test("Noah começa logicamente com som ligado, não faz autoplay e persiste mute
   await expect(toggle).toHaveAttribute("aria-pressed", "false");
   expect(await page.evaluate(() => localStorage.getItem("vnl_noah_sound"))).toBe("off");
   await page.reload();
-  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
   expect(await page.evaluate(() => window.__noahAudioContexts)).toBe(0);
+  expect(await page.evaluate(() => localStorage.getItem("vnl_noah_sound"))).toBe("off");
 });
 
 test("Noah permanece funcional sem suporte a Web Audio", async ({ page }) => {
@@ -513,14 +522,17 @@ test("as três rotas exibem os avisos comuns do evento", async ({ page }) => {
   }
 });
 
-test("movimento reduzido pula automaticamente as introduções", async ({ page }) => {
+test("movimento reduzido preserva a primeira cena e conclui sem espera", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await mockBackend(page);
-  for (const route of ["hannah", "vagner"]) {
-    await page.goto(`/${route}/`);
-    await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
-    await expect(page.locator("[data-content]")).not.toHaveAttribute("inert", "");
-  }
+  await page.goto("/hannah/");
+  await expect(page.getByRole("button", { name: "Entrar no Palácio" })).toBeVisible();
+  await page.getByRole("button", { name: "Entrar no Palácio" }).click();
+  await expect(page.getByRole("button", { name: "Descobrir o convite" })).toBeFocused();
+  await page.goto("/vagner/");
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "arrival");
+  await page.getByRole("button", { name: "Entrar na celebração" }).click();
+  await expect(page.getByRole("button", { name: "Ver o convite" })).toBeFocused();
 });
 
 test("Noah envia RSVP usando a origem correta", async ({ page }) => {
@@ -572,42 +584,43 @@ test("Vagner pausa, retoma e mantém a trilha entre as cenas", async ({ page }) 
   await page.goto("/vagner/");
   const audio = page.locator("[data-vagner-audio]");
   const toggle = page.locator("[data-sound-toggle]");
+  await page.getByRole("button", { name: "Entrar na celebração" }).click();
+  await audio.evaluate((element) => { element.currentTime = 19; });
   await toggle.focus();
   await toggle.press("Space");
-  await audio.evaluate((element) => { element.currentTime = 19; });
-  await toggle.press("Space");
   expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
-  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("off");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBeNull();
   await toggle.press("Space");
   await expect(audio).toHaveJSProperty("currentTime", 19);
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
-  await page.getByRole("button", { name: "Entrar na celebração" }).click();
   await page.getByRole("button", { name: "Ver o convite" }).click();
   await expect(audio).toHaveJSProperty("currentTime", 19);
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
 });
 
-test("Vagner respeita preferência desligada e refresh não provoca autoplay", async ({ page }) => {
+test("Vagner ignora preferências antigas e refresh restaura a chegada sem autoplay", async ({ page }) => {
   await mockAudio(page);
   await mockBackend(page);
   await page.addInitScript(() => {
-    if (sessionStorage.getItem("vnl-test-sound-preference") !== "set") {
-      localStorage.setItem("vnl_vagner_sound", "off");
-      sessionStorage.setItem("vnl-test-sound-preference", "set");
-    }
+    localStorage.setItem("vnl_vagner_sound", "off");
+    localStorage.setItem("vnl:vagner:intro", "seen");
   });
   await page.goto("/vagner/");
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "arrival");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Entrar na celebração" }).click();
-  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
-  await page.locator("[data-sound-toggle]").click();
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(1);
-  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
+  await page.locator("[data-sound-toggle]").click();
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("off");
   await page.reload();
   await expect(page.locator("[data-vagner-audio]")).toHaveCount(1);
   expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(0);
   await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Reproduzir som");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "arrival");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("off");
+  expect(await page.evaluate(() => localStorage.getItem("vnl:vagner:intro"))).toBe("seen");
 });
 
 test("falhas do áudio do Vagner não interrompem convite, Maps ou RSVP", async ({ page }) => {
@@ -616,16 +629,16 @@ test("falhas do áudio do Vagner não interrompem convite, Maps ou RSVP", async 
   await page.goto("/vagner/");
   await page.getByRole("button", { name: "Entrar na celebração" }).click();
   await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
-  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
-  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar reproduzir som");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBeNull();
-  await page.locator("[data-sound-toggle]").click();
   await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "true");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
-  await page.locator("[data-vagner-audio]").dispatchEvent("error");
-  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar reproduzir som");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar iniciar som");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBeNull();
   await page.getByRole("button", { name: "Ver o convite" }).click();
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(2);
+  await page.locator("[data-vagner-audio]").dispatchEvent("error");
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-label", "Tentar iniciar som");
+  await page.getByRole("button", { name: "Rever abertura" }).click();
+  expect(await page.evaluate(() => window.__audioPlayCalls)).toBe(3);
+  await page.getByRole("button", { name: "Pular introdução" }).click();
   await expect(page.getByRole("link", { name: "Abrir no Google Maps" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Enviar confirmação" })).toBeEnabled();
 });
@@ -636,14 +649,14 @@ test("visibilidade pausa e retoma o áudio do Vagner somente quando habilitado",
   await page.goto("/vagner/");
   const audio = page.locator("[data-vagner-audio]");
   const toggle = page.locator("[data-sound-toggle]");
-  await toggle.click();
+  await page.getByRole("button", { name: "Entrar na celebração" }).click();
   await audio.evaluate((element) => { element.currentTime = 31; });
   await page.evaluate(() => {
     window.__documentHidden = true;
     document.dispatchEvent(new Event("visibilitychange"));
   });
   await expect(toggle).toHaveAttribute("aria-pressed", "true");
-  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBe("on");
+  expect(await page.evaluate(() => localStorage.getItem("vnl_vagner_sound"))).toBeNull();
   expect(await page.evaluate(() => window.__audioPauseCalls)).toBe(1);
   await page.evaluate(() => {
     window.__documentHidden = false;
@@ -695,22 +708,27 @@ test("Vagner percorre chegada, identidade e convite pelo caminho principal", asy
   await expect(page.locator('[data-scene="1"]')).toHaveAttribute("data-active", "true");
   await expect(page.getByRole("heading", { name: "Vagner Cunha", exact: true })).toBeVisible();
   await expect(page.getByText("Uma vida para agradecer.")).toBeVisible();
-  await page.waitForTimeout(500);
-  await expect(page.getByRole("button", { name: "Ver o convite" })).not.toBeFocused();
   await expect(page.getByRole("button", { name: "Ver o convite" })).toBeFocused();
   await page.getByRole("button", { name: "Ver o convite" }).click();
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
   await expect(page.locator("[data-content]")).toBeFocused();
 });
 
-test("Vagner evita repetir a abertura e permite revê-la", async ({ page }) => {
+test("Vagner ignora histórico antigo e replay preserva o mute da sessão", async ({ page }) => {
+  await mockAudio(page);
   await mockBackend(page);
   await page.addInitScript(() => localStorage.setItem("vnl:vagner:intro", "seen"));
   await page.goto("/vagner/");
-  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "complete");
+  await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "arrival");
+  await page.locator("[data-sound-toggle]").click();
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  await page.getByRole("button", { name: "Entrar na celebração" }).click();
+  await page.getByRole("button", { name: "Ver o convite" }).click();
   await page.getByRole("button", { name: "Rever abertura" }).click();
   await expect(page.locator("[data-intro]")).toHaveAttribute("data-state", "arrival");
   await expect(page.getByRole("button", { name: "Entrar na celebração" })).toBeFocused();
+  await expect(page.locator("[data-sound-toggle]")).toHaveAttribute("aria-pressed", "false");
+  expect(await page.evaluate(() => localStorage.getItem("vnl:vagner:intro"))).toBe("seen");
 });
 
 test("prazo fechado substitui o formulário pelo contato", async ({ page }) => {

@@ -2,7 +2,6 @@ import { initInvitation } from "../shared/invitation.js";
 
 initInvitation({ origin: "NOAH" });
 
-const SOUND_KEY = "vnl_noah_sound";
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const screens = [...document.querySelectorAll("[data-screen]")];
 const progress = document.querySelector("[data-progress]");
@@ -24,7 +23,7 @@ const stabilizeButton = document.querySelector("[data-stabilize]");
 const confettiColors = ["#15e8ff", "#67f58d", "#c8ff4f", "#a56bff", "#ff65c7", "#ffe35a", "#ffffff"];
 
 let playerName = "Player";
-let soundEnabled = localStorage.getItem(SOUND_KEY) !== "off";
+let soundEnabled = true;
 let audioContext = null;
 let toastTimer = null;
 let equipped = new Set();
@@ -212,7 +211,6 @@ function confettiBurst() {
 
 soundToggle.addEventListener("click", async () => {
   soundEnabled = !soundEnabled;
-  localStorage.setItem(SOUND_KEY, soundEnabled ? "on" : "off");
   renderSound();
   if (soundEnabled) {
     await ensureAudioContext();
@@ -224,7 +222,8 @@ soundToggle.addEventListener("click", async () => {
   }
 });
 
-document.querySelector("[data-accept]").addEventListener("click", () => {
+document.querySelector("[data-accept]").addEventListener("click", async () => {
+  await ensureAudioContext();
   toneSequence([180, 280], { duration: 0.1, gap: 80 });
   showScreen("name", 8, playerInput);
 });

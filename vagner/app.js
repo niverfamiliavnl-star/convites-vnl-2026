@@ -1,7 +1,5 @@
 import { initInvitation } from "../shared/invitation.js";
 
-const STORAGE_KEY = "vnl:vagner:intro";
-const SOUND_STORAGE_KEY = "vnl_vagner_sound";
 const SOUND_VOLUME = 0.16;
 const TRANSITION_MS = 1100;
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -19,27 +17,47 @@ let soundEnabled = true;
 let soundStarted = false;
 let soundNeedsRetry = false;
 let pausedForVisibility = false;
+let retryListenersArmed = false;
 
-try { soundEnabled = localStorage.getItem(SOUND_STORAGE_KEY) !== "off"; } catch { /* Preferência opcional. */ }
 if (vagnerAudio) vagnerAudio.volume = SOUND_VOLUME;
 
-function rememberSound(value) {
-  try { localStorage.setItem(SOUND_STORAGE_KEY, value); } catch { /* A experiência continua sem persistência local. */ }
+function isRetryExcluded(target) {
+  return target instanceof Element && Boolean(target.closest("[data-sound-toggle], [data-skip], [data-skip-story]"));
+}
+
+function disarmSoundRetry() {
+  if (!retryListenersArmed) return;
+  retryListenersArmed = false;
+  document.removeEventListener("pointerdown", retrySoundFromGesture, true);
+  document.removeEventListener("keydown", retrySoundFromGesture, true);
+}
+
+function retrySoundFromGesture(event) {
+  if (event.type === "keydown" && !["Enter", " "].includes(event.key)) return;
+  if (isRetryExcluded(event.target)) return;
+  disarmSoundRetry();
+  if (soundEnabled && soundNeedsRetry) startSound();
+}
+
+function armSoundRetry() {
+  if (retryListenersArmed) return;
+  retryListenersArmed = true;
+  document.addEventListener("pointerdown", retrySoundFromGesture, true);
+  document.addEventListener("keydown", retrySoundFromGesture, true);
 }
 
 function renderSoundState() {
   if (!soundToggle) return;
-  const logicallyOn = soundEnabled && !soundNeedsRetry;
   const playing = soundStarted && vagnerAudio && !vagnerAudio.paused;
-  soundToggle.setAttribute("aria-pressed", String(logicallyOn));
+  soundToggle.setAttribute("aria-pressed", String(soundEnabled));
   soundToggle.setAttribute(
     "aria-label",
-    !soundEnabled ? "Ativar som" : soundNeedsRetry ? "Tentar reproduzir som" : playing ? "Desativar som" : "Reproduzir som",
+    !soundEnabled ? "Ativar som" : soundNeedsRetry ? "Tentar iniciar som" : playing ? "Desativar som" : "Reproduzir som",
   );
-  if (soundIcon) soundIcon.textContent = logicallyOn ? "🔊" : "🔇";
+  if (soundIcon) soundIcon.textContent = soundEnabled ? "🔊" : "🔇";
 }
 
-async function startSound({ remember = true } = {}) {
+async function startSound() {
   if (!vagnerAudio || document.hidden) return false;
   if (soundStarted && !vagnerAudio.paused) {
     soundNeedsRetry = false;
@@ -52,34 +70,41 @@ async function startSound({ remember = true } = {}) {
     soundStarted = true;
     soundNeedsRetry = false;
     pausedForVisibility = false;
-    if (remember) rememberSound("on");
+    disarmSoundRetry();
     renderSoundState();
     return true;
   } catch {
     soundNeedsRetry = true;
     pausedForVisibility = false;
+    armSoundRetry();
     renderSoundState();
     return false;
   }
 }
 
-function stopSound({ remember = true } = {}) {
+function stopSound() {
   vagnerAudio?.pause();
   soundEnabled = false;
   soundNeedsRetry = false;
   pausedForVisibility = false;
-  if (remember) rememberSound("off");
+  disarmSoundRetry();
   renderSoundState();
 }
 
 soundToggle?.addEventListener("click", () => {
-  if (soundEnabled && soundStarted && vagnerAudio && !vagnerAudio.paused) stopSound();
-  else startSound();
+  if (soundEnabled) stopSound();
+  else {
+    soundEnabled = true;
+    renderSoundState();
+    startSound();
+  }
 });
 
 vagnerAudio?.addEventListener("error", () => {
+  soundStarted = false;
   soundNeedsRetry = true;
   pausedForVisibility = false;
+  armSoundRetry();
   renderSoundState();
 });
 
@@ -90,19 +115,11 @@ document.addEventListener("visibilitychange", () => {
     pausedForVisibility = true;
     renderSoundState();
   } else if (!document.hidden && soundEnabled && pausedForVisibility) {
-    startSound({ remember: false });
+    startSound();
   }
 });
 
 renderSoundState();
-
-function hasSeenIntro() {
-  try { return localStorage.getItem(STORAGE_KEY) === "seen"; } catch { return false; }
-}
-
-function rememberIntro() {
-  try { localStorage.setItem(STORAGE_KEY, "seen"); } catch { /* A experiência continua sem persistência local. */ }
-}
 
 function clearTransition() {
   window.clearTimeout(transitionTimer);
@@ -117,7 +134,6 @@ function focusContent() {
 
 function finishIntro({ focus = true } = {}) {
   clearTransition();
-  rememberIntro();
   if (intro) {
     intro.dataset.state = "complete";
     intro.setAttribute("aria-hidden", "true");
@@ -140,11 +156,14 @@ function showIdentity() {
   intro.setAttribute("aria-labelledby", "identity-title");
   intro.dataset.state = "identity";
 
-  window.requestAnimationFrame(() => {
+  const activateIdentity = () => {
     arrival.dataset.active = "false";
     arrival.setAttribute("aria-hidden", "true");
     identity.dataset.active = "true";
-  });
+  };
+
+  if (reducedMotion) activateIdentity();
+  else window.requestAnimationFrame(activateIdentity);
 
   transitionTimer = window.setTimeout(
     () => finishButton?.focus({ preventScroll: true }),
@@ -172,7 +191,7 @@ function replayIntro() {
 }
 
 enterButton?.addEventListener("click", () => {
-  if (soundEnabled) startSound({ remember: false });
+  if (soundEnabled) startSound();
   showIdentity();
 });
 finishButton?.addEventListener("click", () => finishIntro());
@@ -184,12 +203,8 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && intro?.dataset.state !== "complete") finishIntro();
 });
 
-if (hasSeenIntro() || reducedMotion) {
-  finishIntro({ focus: false });
-} else {
-  intro?.setAttribute("aria-hidden", "false");
-  content?.setAttribute("inert", "");
-  content?.setAttribute("aria-hidden", "true");
-}
+intro?.setAttribute("aria-hidden", "false");
+content?.setAttribute("inert", "");
+content?.setAttribute("aria-hidden", "true");
 
 initInvitation({ origin: "VAGNER" });

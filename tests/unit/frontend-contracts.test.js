@@ -60,7 +60,9 @@ describe("contratos do jogo canônico do Noah", () => {
     expect(html).toContain("data-rsvp-form");
     expect(html).not.toContain("docs.google.com/forms");
     expect(app).toContain('initInvitation({ origin: "NOAH" })');
-    expect(app).toContain('const SOUND_KEY = "vnl_noah_sound"');
+    expect(app).toContain("let soundEnabled = true");
+    expect(app).not.toContain("vnl_noah_sound");
+    expect(app).not.toContain("localStorage");
     expect(app).toContain("createOscillator");
     expect(app).not.toContain("vnl:noah:mission");
   });
