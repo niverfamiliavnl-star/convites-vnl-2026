@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
@@ -41,6 +41,17 @@ describe("contratos do jogo canônico do Noah", () => {
     expect(html).toContain("Data desbloqueada");
     expect(html).toContain("Horário desbloqueado");
     expect(html).toContain("Local desbloqueado");
+    expect(html).toContain('./assets/noah-armadura.webp');
+    expect(html.match(/noah-armadura\.webp/g)).toHaveLength(2);
+    expect(html).toContain('width="1024" height="1536"');
+    expect(html).toContain('alt="Heitor Noah sorrindo, vestido com a Armadura de Deus e segurando escudo e espada."');
+    expect(html).not.toContain("PLAYER DA LUZ // ONLINE");
+    expect(html).not.toContain("A missão é rápida, funciona no celular e não exige cadastro.");
+    expect(html).not.toContain("O nome fica apenas neste aparelho e não é enviado para nenhum servidor.");
+    expect(html).not.toContain("final-emblem");
+    const asset = new URL("../../noah/assets/noah-armadura.webp", import.meta.url);
+    expect(existsSync(asset)).toBe(true);
+    expect(statSync(asset).size).toBeGreaterThan(0);
   });
 
   it("usa o RSVP VNL e Web Audio sem formulário externo", () => {

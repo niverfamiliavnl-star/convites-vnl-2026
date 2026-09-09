@@ -6,6 +6,7 @@
     <meta name="theme-color" content="#071225">
     <meta name="description" content="Convite-jogo dos 10 anos de Heitor Noah — Level Up da Fé.">
     <title>Level Up da Fé — Heitor Noah, Nível 10</title>
+    <link rel="preload" as="image" href="./assets/noah-armadura.webp" fetchpriority="low">
     <link rel="stylesheet" href="../shared/base.css">
     <link rel="stylesheet" href="./style.css">
     <script type="module" src="./app.js"></script>
@@ -42,10 +43,8 @@
               <i></i><i></i><i class="on"></i><i></i><i></i>
             </div>
             <div class="game-controller"></div>
-            <div class="level-chip">PLAYER DA LUZ // ONLINE</div>
           </div>
 
-          <p class="game-small game-muted">A missão é rápida, funciona no celular e não exige cadastro.</p>
           <button class="game-button" type="button" data-accept>ACEITAR MISSÃO</button>
         </div></div>
       </section>
@@ -60,7 +59,6 @@
             <input id="player-name" name="playerName" maxlength="24" autocomplete="name" placeholder="Ex.: Lucas" required>
             <button class="game-button" type="submit">ENTRAR NO JOGO</button>
           </form>
-          <p class="game-small game-muted">O nome fica apenas neste aparelho e não é enviado para nenhum servidor.</p>
         </div></div>
       </section>
 
@@ -126,7 +124,9 @@
       <section class="game-screen" id="final-screen" data-screen="final" aria-labelledby="final-title" aria-hidden="true" inert hidden>
         <div class="game-panel final-panel"><div class="game-content">
           <div class="system-label">🏆 Missão concluída</div>
-          <div class="final-emblem" aria-hidden="true"><strong>10</strong><small>LEVEL UP</small></div>
+          <figure class="final-portrait">
+            <img src="./assets/noah-armadura.webp" width="1024" height="1536" loading="eager" decoding="async" fetchpriority="low" alt="Heitor Noah sorrindo, vestido com a Armadura de Deus e segurando escudo e espada.">
+          </figure>
           <p class="final-greeting" data-final-greeting></p>
           <h2 class="final-name" id="final-title" tabindex="-1">Heitor Noah</h2>
           <p class="level-title">Level 10 desbloqueado!</p>

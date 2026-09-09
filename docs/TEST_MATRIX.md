@@ -248,3 +248,14 @@ Referência canônica: `C:/Users/leona/Downloads/heitor_noah_level_up_da_fe_site
 - Testes focados Noah: 18 aprovados em Chromium desktop e Pixel 7. Suíte unitária: 34 aprovados. Regressão E2E completa: 74 aprovados nos dois perfis.
 - Hannah, Vagner, `shared/`, backend, endpoint, planilhas, Apps Script e workflow permaneceram congelados. Nenhuma resposta real foi criada.
 - Noah permanece deliberadamente fora do artefato do GitHub Pages e a rota pública continua retornando HTTP 404. Nenhum push ou publicação foi realizado.
+
+## Refinamento final da rota Noah — 09/09/2026
+
+- `noah04.png` foi convertido sem recorte para `noah/assets/noah-armadura.webp`: WebP qualidade 90, 1024×1536, transparência preservada, 269.556 bytes e SHA-256 `F07F3C95D62B4992B32254F8F63E0A4CFE97E8CEA05B10A8A402236A26761D58`.
+- A fotografia aparece uma única vez e somente no convite final, antes da saudação e do nome, em moldura de até 340 px com `object-fit: contain`, dimensões declaradas e texto alternativo descritivo. Não aparece nas fases 1–3.
+- O bloco “10 / LEVEL UP” e seu CSS foram removidos. Também foram removidos os três textos congelados nesta tarefa; nome, nível, dados do evento, avisos, Maps, RSVP e replay foram preservados.
+- A abertura foi compactada com redistribuição da cruz e do controle. Um artefato P2 preexistente do aviso flutuante vazio foi eliminado apenas por CSS.
+- Evidências browser-rendered de abertura, identificação, retrato e convite final em 390×844, 430×932 e 1440×900 estão em `docs/evidence/noah-final/`. `qa-asset-comparison.png` e `qa-layout-comparison-mobile-390x844.png` registram as comparações lado a lado.
+- Design QA: rosto, capacete, escudo, espada, pés, transparência, contraste, hierarquia e ausência de overflow aprovados; nenhum P0, P1 ou P2 permanece. Relatório em `design-qa.md`, com `final result: passed`.
+- Testes focados Noah: 18 aprovados. Suíte unitária: 34 aprovados. A primeira regressão paralela teve quatro timeouts sob carga; a repetição integral sequencial aprovou 74/74 em Chromium desktop e Pixel 7.
+- `noah/app.js`, `shared/`, backend, Apps Script, planilhas, endpoint, Hannah, Vagner e workflow permaneceram congelados. Nenhum RSVP real, push, workflow ou publicação foi executado.

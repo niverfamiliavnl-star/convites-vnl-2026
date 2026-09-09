@@ -331,12 +331,15 @@ test("Noah reproduz a abertura, identificação e primeira fase canônicas", asy
   await mockBackend(page);
   await page.goto("/noah/");
   await expect(page.getByRole("heading", { name: "Level Up da Fé" })).toBeVisible();
-  await expect(page.getByText("Player da Luz // Online")).toBeVisible();
+  await expect(page.getByText("Player da Luz // Online")).toHaveCount(0);
+  await expect(page.getByText("A missão é rápida, funciona no celular e não exige cadastro.")).toHaveCount(0);
+  await expect(page.locator('img[src="./assets/noah-armadura.webp"]')).toBeHidden();
   await expect(page.locator("[data-progress]")).toHaveAttribute("aria-valuenow", "0");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
   await page.getByRole("button", { name: "ACEITAR MISSÃO" }).click();
   await expect(page.locator("[data-progress]")).toHaveAttribute("aria-valuenow", "8");
   await expect(page.getByLabel("Nome do player")).toBeFocused();
+  await expect(page.getByText("O nome fica apenas neste aparelho e não é enviado para nenhum servidor.")).toHaveCount(0);
   await page.getByLabel("Nome do player").fill("Ana");
   await page.getByRole("button", { name: "ENTRAR NO JOGO" }).click();
   await expect(page.getByRole("heading", { name: "Equipe a Armadura de Deus" })).toBeFocused();
@@ -417,6 +420,15 @@ test("Noah conclui o jogo, preserva o RSVP e reinicia apenas o estado local", as
   await expect(page.getByRole("heading", { name: "Heitor Noah" })).toBeFocused();
   await expect(page.getByText(/Parabéns, Lucas!/)).toBeVisible();
   await expect(page.getByText("Level 10 desbloqueado!")).toBeVisible();
+  const portrait = page.locator('img[src="./assets/noah-armadura.webp"]');
+  await expect(portrait).toHaveCount(1);
+  await expect(portrait).toBeVisible();
+  await expect(portrait).toHaveAttribute("alt", "Heitor Noah sorrindo, vestido com a Armadura de Deus e segurando escudo e espada.");
+  expect(await portrait.evaluate((image) => ({ width: image.naturalWidth, height: image.naturalHeight }))).toEqual({ width: 1024, height: 1536 });
+  expect(await portrait.evaluate((image) => {
+    const rect = image.getBoundingClientRect();
+    return rect.left >= -1 && rect.right <= window.innerWidth + 1 && rect.width / rect.height > .65 && rect.width / rect.height < .68;
+  })).toBe(true);
   await expect(page.locator("[data-progress]")).toHaveAttribute("aria-valuenow", "100");
   await expect(page.locator(".confetti-piece")).not.toHaveCount(0);
   await page.getByLabel("Nome do responsável ou família").fill("Família Preservada");
