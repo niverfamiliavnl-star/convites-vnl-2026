@@ -28,3 +28,29 @@ describe("contratos do merge da Hannah", () => {
     expect(config).not.toContain("test-deployment");
   });
 });
+
+describe("contratos do jogo canônico do Noah", () => {
+  it("preserva as três fases, as rotas e os desbloqueios", () => {
+    const html = read("noah/index.html");
+    expect(html).toContain("Fase 1 de 3 • Armadura de Deus");
+    expect(html).toContain("Fase 2 de 3 • Escolha o caminho");
+    expect(html).toContain("Fase 3 de 3 • Barra da fé");
+    expect(html).toContain("ROTA A:");
+    expect(html).toContain("ROTA B:");
+    expect(html).toContain("ROTA C:");
+    expect(html).toContain("Data desbloqueada");
+    expect(html).toContain("Horário desbloqueado");
+    expect(html).toContain("Local desbloqueado");
+  });
+
+  it("usa o RSVP VNL e Web Audio sem formulário externo", () => {
+    const html = read("noah/index.html");
+    const app = read("noah/app.js");
+    expect(html).toContain("data-rsvp-form");
+    expect(html).not.toContain("docs.google.com/forms");
+    expect(app).toContain('initInvitation({ origin: "NOAH" })');
+    expect(app).toContain('const SOUND_KEY = "vnl_noah_sound"');
+    expect(app).toContain("createOscillator");
+    expect(app).not.toContain("vnl:noah:mission");
+  });
+});

@@ -37,15 +37,17 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 
 - [ ] Rota publicada abre de forma independente.
 - [x] Rota local abre de forma independente.
-- [x] Jornada começa por ação explícita em “Começar missão” e move o foco para a seleção dos itens.
-- [x] Seis itens podem ser equipados em qualquer ordem.
-- [x] Progresso avança de 0/6 a 6/6.
-- [x] Cada item apresenta sua mensagem.
-- [x] Missão completa aparece depois do sexto item.
-- [x] Jornada completa leva o foco às informações do convite.
-- [x] Missão pode ser pulada.
-- [x] Todos os itens podem ser equipados por teclado e possuem estado acessível `aria-pressed`.
-- [x] Missão já concluída não é repetida automaticamente e mantém a opção “Refazer missão”.
+- [x] Jornada canônica completa: abertura → identificação → Armadura de Deus → escolha do caminho → Barra da Fé → convite → RSVP VNL → jogar novamente.
+- [x] Abertura sempre começa em “ACEITAR MISSÃO”; a antiga chave `vnl:noah:mission` é ignorada e não existe salto nem atalho de visitante recorrente.
+- [x] Nome do player permanece somente em memória e é aplicado com `textContent`, sem preencher ou integrar o payload do RSVP.
+- [x] Seis equipamentos únicos podem ser ativados em qualquer ordem; cada botão fica desabilitado, informa `aria-pressed=true` e apresenta sua mensagem após o gesto.
+- [x] Contador e progresso percorrem `0/6–6/6` e `0 → 8 → 18 → 38 → 43 → 63 → 68 → 91 → 100`.
+- [x] Rotas A e C permitem nova tentativa; somente a rota B desbloqueia o horário.
+- [x] Barra da Fé aceita 41%–59%, permite tentativas ilimitadas e mantém `aria-valuenow` observável; em movimento reduzido fica estável em 50%.
+- [x] “JOGAR NOVAMENTE” reinicia somente o jogo e preserva o formulário RSVP e as preferências locais.
+- [x] Áudio sintético usa Web Audio somente após gesto, persiste apenas `vnl_noah_sound=on|off` e falha sem interromper a jornada.
+- [x] Controles principais, equipamentos e som são operáveis por teclado, com foco transferido entre as telas.
+- [x] Informações críticas e Maps possuem fallback estático sem JavaScript.
 - [x] Implementação usa apenas HTML, CSS e JavaScript.
 - [x] RSVP validado ponta a ponta contra a homologação real, incluindo SIM/3, atualização SIM/2 e situação final NÃO/0.
 
@@ -70,11 +72,11 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - [ ] iPhone real validado, quando disponível.
 - [x] Viewports desktop e mobile aprovados pelo Playwright.
 - [x] `prefers-reduced-motion` tratado no núcleo CSS e nas introduções.
-- [x] `prefers-reduced-motion` validado automaticamente em Hannah e Vagner.
-- [x] `localStorage` guarda apenas a conclusão das experiências, sem dados pessoais.
+- [x] `prefers-reduced-motion` validado automaticamente em Hannah, Noah e Vagner.
+- [x] `localStorage` guarda somente preferências de introdução/áudio previstas, sem dados pessoais.
 - [x] Traje despojado, piscina infantil com roupa de banho e proibição de bebidas alcoólicas aparecem nas três rotas.
 - [x] Informações críticas e Maps permanecem acessíveis sem JavaScript, cobrindo carregamento lento ou falha dos elementos dinâmicos.
-- [x] Nenhuma experiência depende de áudio.
+- [x] Nenhuma experiência depende de áudio para funcionar; trilhas e efeitos permanecem opcionais.
 - [x] Artefato do GitHub Pages montado e inspecionado localmente sem efetuar publicação.
 
 ## Evidências de homologação — 06/09/2026
@@ -222,3 +224,27 @@ Legenda: `[x]` aprovado; `[ ]` ainda requer execução ou evidência.
 - As transições iniciais de Hannah e Vagner foram sincronizadas em 1.100 ms, com foco transferido somente ao final. `prefers-reduced-motion` elimina movimento e espera cinematográfica.
 - Testes focados de áudio e transição: 13 aprovados. Suíte unitária: 32 aprovados. Regressão E2E: 66 aprovados em Chromium desktop e Pixel 7, incluindo Maps, RSVP simulado, origens, backend indisponível e ausência de falso sucesso.
 - A inspeção visual local aprovou as duas transições em desktop e 390×844, sem tela branca, quebra de layout ou perda dos controles. A auditoria confirmou `shared/`, `backend/`, Noah e workflow sem alterações.
+
+## Refinamento completo do Heitor Noah — 09/09/2026
+
+Referência canônica: `C:/Users/leona/Downloads/heitor_noah_level_up_da_fe_site_final_sem_compartilhar/site_heitor_noah_level_up_da_fe_final_sem_compartilhar/index.html`.
+
+| Elemento canônico | Implementado | Observação |
+| --- | --- | --- |
+| Abertura “Level Up da Fé” | SIM | Sempre inicia em “ACEITAR MISSÃO”, inclusive quando existe a chave legada. |
+| Identificação do player | SIM | Nome mantido somente em memória e inserido com `textContent`. |
+| Fase 1 — seis equipamentos | SIM | Itens únicos, ordem livre, mensagens, contador, teclado e desbloqueio da data. |
+| Fase 2 — rotas A/B/C | SIM | Textos e ordem canônicos; A/C recuperáveis e B desbloqueia o horário. |
+| Fase 3 — Barra da Fé | SIM | Faixa válida 41%–59%, tentativas ilimitadas e local desbloqueado. |
+| Convite final e replay | SIM | Confete, progresso 100%, Maps, avisos e reinício apenas do jogo. |
+| Sons sintéticos | SIM | `OscillatorNode`/`GainNode`, gesto obrigatório e preferência `vnl_noah_sound`. |
+| Movimento reduzido | SIM | Sem confete ou movimento decorativo; medidor estável em 50%. |
+| Formulário final | SIM | Google Forms foi deliberadamente substituído pelo RSVP VNL compartilhado, preservando `origem=NOAH`. |
+| Falha segura do backend | SIM | Sem falso sucesso; informações do evento continuam disponíveis. |
+
+- Não existem assets fotográficos ou de equipamentos no pacote de referência. Os símbolos, ícones e elementos visuais canônicos foram preservados em HTML/CSS, sem dependências externas ou geração de imagens.
+- Evidências comparativas e capturas de abertura, identificação, três fases, convite e RSVP estão em `docs/evidence/noah-level-up/` para 390×844, 430×932 e 1440×900, com DPR 1.
+- Design QA comparou referência e implementação lado a lado. A largura desktop, a grade de equipamentos e a densidade inicial foram corrigidas; nenhum P0, P1 ou P2 permaneceu.
+- Testes focados Noah: 18 aprovados em Chromium desktop e Pixel 7. Suíte unitária: 34 aprovados. Regressão E2E completa: 74 aprovados nos dois perfis.
+- Hannah, Vagner, `shared/`, backend, endpoint, planilhas, Apps Script e workflow permaneceram congelados. Nenhuma resposta real foi criada.
+- Noah permanece deliberadamente fora do artefato do GitHub Pages e a rota pública continua retornando HTTP 404. Nenhum push ou publicação foi realizado.

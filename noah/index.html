@@ -2,146 +2,188 @@
 <html lang="pt-BR">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#071524">
-    <meta name="description" content="Convite de aniversário de Heitor Noah — 10 anos. A Armadura de Deus.">
-    <title>Heitor Noah faz 10 anos · A Armadura de Deus</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#071225">
+    <meta name="description" content="Convite-jogo dos 10 anos de Heitor Noah — Level Up da Fé.">
+    <title>Level Up da Fé — Heitor Noah, Nível 10</title>
     <link rel="stylesheet" href="../shared/base.css">
     <link rel="stylesheet" href="./style.css">
     <script type="module" src="./app.js"></script>
   </head>
   <body class="noah-body">
-    <a class="skip-link" href="#informacoes">Ir para as informações</a>
+    <a class="skip-link" href="#noah-game">Ir para o jogo</a>
 
-    <header class="mission-hero" data-mission-root data-state="intro">
-      <div class="mission-atmosphere" aria-hidden="true">
-        <span class="mission-ray mission-ray--one"></span>
-        <span class="mission-ray mission-ray--two"></span>
-        <span class="mission-seal">EF<br>6</span>
+    <main class="game-app" id="noah-game" data-game-root>
+      <header class="game-topbar">
+        <div class="game-brand"><span class="status-dot" aria-hidden="true"></span>Level Up da Fé • Nível 10</div>
+        <button class="sound-button" type="button" data-sound-toggle aria-label="Desativar sons" aria-pressed="true">
+          <span data-sound-icon aria-hidden="true">🔊</span>
+        </button>
+      </header>
+
+      <div class="game-progress" role="progressbar" aria-label="Progresso da missão" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-progress>
+        <span data-progress-bar></span>
       </div>
 
-      <div class="mission-shell">
-        <div class="mission-brand" aria-label="Heitor Noah, 10 anos">
-          <span class="mission-brand__mark" aria-hidden="true">N</span>
-          <span><strong>Heitor Noah</strong><small>10 anos · Efésios 6</small></span>
-        </div>
+      <section class="game-screen is-active" id="start-screen" data-screen="start" aria-labelledby="start-title">
+        <div class="game-panel"><div class="game-content">
+          <div class="system-label">🎮 Nova missão recebida</div>
+          <h1 id="start-title">Level Up <span>da Fé</span></h1>
+          <p class="game-lead">Heitor Noah está prestes a desbloquear o <strong>NÍVEL 10</strong>. Complete três fases para revelar o convite secreto dessa nova jornada.</p>
 
-        <section class="mission-intro" data-mission-intro aria-labelledby="mission-intro-title">
-          <div class="mission-intro__copy">
-            <span class="eyebrow">Convocação especial</span>
-            <p class="mission-kicker">A Armadura de Deus</p>
-            <h1 id="mission-intro-title">Uma missão de fé e coragem espera por você.</h1>
-            <p class="mission-lede">Equipe cada peça da armadura e descubra o convite para celebrar os 10 anos do Noah.</p>
-            <div class="mission-intro__actions">
-              <button class="mission-button mission-button--gold" type="button" data-start-mission>Começar missão</button>
-              <button class="mission-button mission-button--ghost" type="button" data-skip-mission>Pular missão</button>
-              <button class="mission-button mission-button--ghost" type="button" data-replay-mission hidden>Refazer missão</button>
+          <div class="hero-console" aria-hidden="true">
+            <div class="pixel-cross">
+              <i></i><i></i><i class="on"></i><i></i><i></i>
+              <i></i><i></i><i class="on"></i><i></i><i></i>
+              <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+              <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+              <i></i><i></i><i class="on"></i><i></i><i></i>
+              <i></i><i></i><i class="on"></i><i></i><i></i>
+              <i></i><i></i><i class="on"></i><i></i><i></i>
             </div>
-            <p class="returning-note" data-returning-note hidden>Você já concluiu esta missão. O convite está liberado.</p>
+            <div class="game-controller"></div>
+            <div class="level-chip">PLAYER DA LUZ // ONLINE</div>
           </div>
 
-          <div class="armor-emblem" aria-hidden="true">
-            <div class="armor-emblem__halo"></div>
-            <div class="armor-emblem__shield">
-              <span class="armor-emblem__star">✦</span>
-              <strong>N</strong>
-              <small>10</small>
-            </div>
-            <span class="armor-emblem__blade armor-emblem__blade--left"></span>
-            <span class="armor-emblem__blade armor-emblem__blade--right"></span>
-            <p>Verdade · Justiça · Fé</p>
-          </div>
-        </section>
-
-        <section class="loadout" data-mission-stage aria-labelledby="loadout-title" hidden>
-          <div class="loadout__heading">
-            <div>
-              <span class="eyebrow">Etapa de preparação</span>
-              <h2 id="loadout-title" tabindex="-1">Equipe a Armadura de Deus</h2>
-              <p>Escolha as seis peças em qualquer ordem. Cada uma revela uma mensagem para a missão.</p>
-            </div>
-            <div class="mission-progress" aria-label="Progresso da missão">
-              <strong data-progress aria-live="polite">0/6</strong>
-              <span>peças equipadas</span>
-            </div>
-          </div>
-
-          <div class="loadout__bar" aria-hidden="true"><span data-progress-bar></span></div>
-
-          <div class="gear-grid">
-            <button class="gear" type="button" data-gear="Capacete da Salvação" data-message="Proteja seus pensamentos." aria-pressed="false">
-              <span class="gear__number">01</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M14 31a18 18 0 0 1 36 0v9H38l-6 9-6-9H14Z"/><path d="M19 31h26"/></svg><span class="gear__copy"><b>Capacete da Salvação</b><small>Proteja seus pensamentos.</small></span><span class="gear__check" aria-hidden="true">✓</span>
-            </button>
-            <button class="gear" type="button" data-gear="Couraça da Justiça" data-message="Escolha o que é certo." aria-pressed="false">
-              <span class="gear__number">02</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="m20 12 12 5 12-5 7 10-8 30H21L13 22Z"/><path d="M32 17v35"/></svg><span class="gear__copy"><b>Couraça da Justiça</b><small>Escolha o que é certo.</small></span><span class="gear__check" aria-hidden="true">✓</span>
-            </button>
-            <button class="gear" type="button" data-gear="Cinturão da Verdade" data-message="Permaneça na verdade." aria-pressed="false">
-              <span class="gear__number">03</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M9 25h46v15H9z"/><path d="M25 22h14v21H25z"/><circle cx="32" cy="32" r="3"/></svg><span class="gear__copy"><b>Cinturão da Verdade</b><small>Permaneça na verdade.</small></span><span class="gear__check" aria-hidden="true">✓</span>
-            </button>
-            <button class="gear" type="button" data-gear="Escudo da Fé" data-message="Mantenha a fé." aria-pressed="false">
-              <span class="gear__number">04</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 8 51 16v15c0 12-8 21-19 26C21 52 13 43 13 31V16Z"/><path d="M32 17v29M22 29h20"/></svg><span class="gear__copy"><b>Escudo da Fé</b><small>Mantenha a fé.</small></span><span class="gear__check" aria-hidden="true">✓</span>
-            </button>
-            <button class="gear" type="button" data-gear="Espada do Espírito" data-message="A Palavra de Deus." aria-pressed="false">
-              <span class="gear__number">05</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="m48 8 7 7-27 29-8-8Z"/><path d="m17 33 14 14M17 42l-8 8 5 5 8-8"/></svg><span class="gear__copy"><b>Espada do Espírito</b><small>A Palavra de Deus.</small></span><span class="gear__check" aria-hidden="true">✓</span>
-            </button>
-            <button class="gear" type="button" data-gear="Sandálias do Evangelho" data-message="Leve as boas-novas." aria-pressed="false">
-              <span class="gear__number">06</span><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M16 12v25c0 9 7 15 16 15h14c5 0 8-3 8-7 0-5-5-7-11-7h-9V18Z"/><path d="M16 29h18M24 18h10"/></svg><span class="gear__copy"><b>Sandálias do Evangelho</b><small>Leve as boas-novas.</small></span><span class="gear__check" aria-hidden="true">✓</span>
-            </button>
-          </div>
-
-          <div class="mission-feedback" data-feedback-state="idle">
-            <span class="mission-feedback__icon" aria-hidden="true">✦</span>
-            <p data-mission-message role="status" aria-live="polite">Escolha qualquer peça para começar a equipar.</p>
-          </div>
-
-          <div class="mission-actions">
-            <button class="mission-button mission-button--gold mission-complete" type="button" data-complete hidden>Missão completa — ver convite</button>
-            <button class="mission-button mission-button--ghost" type="button" data-skip-stage>Pular missão</button>
-          </div>
-        </section>
-      </div>
-    </header>
-
-    <main class="noah-main" data-content tabindex="-1">
-      <section class="mission-complete-banner" data-mission-banner aria-label="Convite liberado" hidden>
-        <span aria-hidden="true">✦</span><div><p class="eyebrow">Convite liberado</p><h2>Agora, vamos celebrar!</h2></div>
+          <p class="game-small game-muted">A missão é rápida, funciona no celular e não exige cadastro.</p>
+          <button class="game-button" type="button" data-accept>ACEITAR MISSÃO</button>
+        </div></div>
       </section>
 
-      <section class="event-card noah-event-card" id="informacoes" aria-labelledby="event-title">
-        <span class="eyebrow">Convocação oficial</span><h2 id="event-title">Heitor Noah faz 10 anos</h2>
-        <p class="event-intro">Você faz parte desta celebração. Confira os detalhes da missão.</p>
-        <div class="event-grid">
-          <div class="event-detail"><span>Data</span><strong data-event-date>26 de setembro de 2026</strong></div>
-          <div class="event-detail"><span>Horário</span><strong data-event-time>14h</strong></div>
-          <div class="event-detail"><span>Base da missão</span><strong data-event-venue>Sítio Jalisco</strong></div>
-          <div class="event-detail"><span>Equipamento extra</span><strong data-event-note>Traga sua roupa de banho</strong></div>
-        </div>
-        <ul class="event-notices" aria-label="Informações importantes">
-          <li data-event-dress-code>Traje despojado</li><li data-event-pool-notice>Piscina liberada para as crianças — leve roupa de banho.</li><li data-event-alcohol-notice>Não serão aceitas bebidas alcoólicas.</li>
-        </ul>
-        <a class="map-link" data-maps-link href="https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A">Abrir rota da missão <span aria-hidden="true">↗</span></a>
+      <section class="game-screen" id="name-screen" data-screen="name" aria-labelledby="name-title" aria-hidden="true" inert hidden>
+        <div class="game-panel"><div class="game-content">
+          <div class="system-label">🟢 Identificação do jogador</div>
+          <h2 id="name-title" tabindex="-1">Quem entrou no jogo?</h2>
+          <p class="game-lead">Digite seu nome para personalizar a missão.</p>
+          <form data-player-form>
+            <label for="player-name">Nome do player</label>
+            <input id="player-name" name="playerName" maxlength="24" autocomplete="name" placeholder="Ex.: Lucas" required>
+            <button class="game-button" type="submit">ENTRAR NO JOGO</button>
+          </form>
+          <p class="game-small game-muted">O nome fica apenas neste aparelho e não é enviado para nenhum servidor.</p>
+        </div></div>
       </section>
 
-      <section class="rsvp-card noah-rsvp-card" data-rsvp-region aria-labelledby="rsvp-title">
-        <span class="eyebrow">Confirmação</span><h2 id="rsvp-title">Confirme sua participação</h2>
-        <p class="rsvp-lede">Responda até <span data-event-cutoff>15 de setembro de 2026, às 23h59</span>.</p>
-        <p class="rsvp-status" data-rsvp-status role="status" aria-live="polite">Verificando a disponibilidade da confirmação…</p>
-        <form class="rsvp-form" data-rsvp-form method="post" target="rsvp-transport">
-          <input type="hidden" name="request_id"><input type="hidden" name="evento_id"><input type="hidden" name="origem">
-          <div class="field"><label for="noah-nome">Nome do responsável ou família</label><input id="noah-nome" name="nome_responsavel" autocomplete="name" minlength="2" maxlength="120" required></div>
-          <div class="field"><label for="noah-telefone">Telefone ou WhatsApp</label><input id="noah-telefone" name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(85) 99999-9999" maxlength="24" required><small>Informe DDD e número.</small></div>
-          <fieldset class="presence-options field"><legend>Vocês estarão presentes?</legend><label class="presence-option"><input type="radio" name="presenca" value="SIM" required> Sim, estaremos</label><label class="presence-option"><input type="radio" name="presenca" value="NAO" required> Não poderemos ir</label></fieldset>
-          <div class="field" data-quantity-field hidden><label for="noah-quantidade">Quantidade total de pessoas</label><input id="noah-quantidade" name="quantidade" type="number" min="1" max="20" inputmode="numeric"></div>
-          <div class="field"><label for="noah-acompanhantes">Acompanhantes <small>(opcional)</small></label><textarea id="noah-acompanhantes" name="acompanhantes" maxlength="500" placeholder="Nomes dos acompanhantes"></textarea></div>
-          <div class="field"><label for="noah-observacao">Observação <small>(opcional)</small></label><textarea id="noah-observacao" name="observacao" maxlength="1000"></textarea></div>
-          <div class="honeypot" aria-hidden="true"><label for="noah-site">Não preencha este campo</label><input id="noah-site" name="website" tabindex="-1" autocomplete="off"></div>
-          <p class="privacy" data-privacy>Seus dados serão utilizados exclusivamente para organizar as confirmações deste evento.</p>
-          <div class="form-actions"><button class="primary-button" type="submit">Enviar confirmação</button></div>
-        </form>
-        <iframe class="rsvp-transport" data-rsvp-frame name="rsvp-transport" title="Processamento da confirmação"></iframe>
+      <section class="game-screen" id="mission-one" data-screen="mission1" aria-labelledby="mission-one-title" aria-hidden="true" inert hidden>
+        <div class="game-panel"><div class="game-content">
+          <div class="mission-badge">⚔️ Fase 1 de 3 • Armadura de Deus</div>
+          <h2 id="mission-one-title" tabindex="-1">Equipe a Armadura de Deus</h2>
+          <p class="game-lead"><span data-player-name>Player</span>, toque em cada equipamento para completar sua armadura e avançar para a próxima fase.</p>
+
+          <div class="power-grid" data-power-grid>
+            <button class="power-up" type="button" data-gear="Capacete da Salvação" data-message="Proteja seus pensamentos." aria-pressed="false"><span class="power-icon" aria-hidden="true">🪖</span><span class="power-copy"><strong>Capacete da Salvação</strong></span></button>
+            <button class="power-up" type="button" data-gear="Couraça da Justiça" data-message="Escolha o que é certo." aria-pressed="false"><span class="power-icon" aria-hidden="true">❤️</span><span class="power-copy"><strong>Couraça da Justiça</strong></span></button>
+            <button class="power-up" type="button" data-gear="Sandálias do Evangelho" data-message="Leve as boas-novas." aria-pressed="false"><span class="power-icon" aria-hidden="true">👣</span><span class="power-copy"><strong>Sandálias do Evangelho</strong></span></button>
+            <button class="power-up" type="button" data-gear="Escudo da Fé" data-message="Mantenha a fé." aria-pressed="false"><span class="power-icon" aria-hidden="true">🛡️</span><span class="power-copy"><strong>Escudo da Fé</strong></span></button>
+            <button class="power-up" type="button" data-gear="Espada do Espírito" data-message="A Palavra de Deus." aria-pressed="false"><span class="power-icon" aria-hidden="true">⚔️</span><span class="power-copy"><strong>Espada do Espírito</strong></span></button>
+            <button class="power-up" type="button" data-gear="Cinturão da Verdade" data-message="Permaneça na verdade." aria-pressed="false"><span class="power-icon" aria-hidden="true">🎗️</span><span class="power-copy"><strong>Cinturão da Verdade</strong></span></button>
+          </div>
+
+          <p class="game-feedback" data-power-feedback role="status" aria-live="polite" hidden></p>
+          <p class="power-counter" data-power-counter>0 de 6 equipamentos conquistados</p>
+          <div class="game-reward" data-reward-one hidden>✅ PRIMEIRA FASE CONCLUÍDA!<br><strong>📅 Data desbloqueada: <span data-event-date>26 de setembro de 2026</span></strong></div>
+          <button class="game-button" type="button" data-to-mission-two hidden>SEGUIR PARA A FASE 2</button>
+        </div></div>
       </section>
 
-      <footer class="noah-footer"><span aria-hidden="true">N · X</span><p>Heitor Noah · 10 anos · 2026</p></footer>
+      <section class="game-screen" id="mission-two" data-screen="mission2" aria-labelledby="mission-two-title" aria-hidden="true" inert hidden>
+        <div class="game-panel"><div class="game-content">
+          <div class="mission-badge">🧭 Fase 2 de 3 • Escolha o caminho</div>
+          <h2 id="mission-two-title" tabindex="-1">Qual é a rota certa?</h2>
+          <p class="game-lead">O mapa ficou bloqueado. Escolha a mensagem que conduz o player da luz pelo caminho correto.</p>
+          <blockquote class="verse-card">“Eu sou o caminho, a verdade e a vida.” <cite>— João 14:6</cite></blockquote>
+
+          <div class="path-grid">
+            <button class="path-answer" type="button" data-answer="wrong"><strong>ROTA A:</strong> Jogar sozinho e nunca pedir ajuda.</button>
+            <button class="path-answer" type="button" data-answer="correct"><strong>ROTA B:</strong> Caminhar com fé em Jesus, seguindo seus mandamentos.</button>
+            <button class="path-answer" type="button" data-answer="wrong"><strong>ROTA C:</strong> Vencer de qualquer jeito, sem pensar nos outros.</button>
+          </div>
+
+          <p class="game-feedback" data-path-feedback role="status" aria-live="polite">Escolha uma rota.</p>
+          <div class="game-reward" data-reward-two hidden>✅ CAMINHO LIBERADO!<br><strong>⏰ Horário desbloqueado: <span data-event-time>14h</span></strong></div>
+          <button class="game-button" type="button" data-to-mission-three hidden>SEGUIR PARA A FASE FINAL</button>
+        </div></div>
+      </section>
+
+      <section class="game-screen" id="mission-three" data-screen="mission3" aria-labelledby="mission-three-title" aria-hidden="true" inert hidden>
+        <div class="game-panel"><div class="game-content">
+          <div class="mission-badge">⚡ Fase 3 de 3 • Barra da fé</div>
+          <h2 id="mission-three-title" tabindex="-1">Carregue o nível máximo</h2>
+          <p class="game-lead">Toque no botão quando o marcador estiver dentro da área verde. Você pode tentar quantas vezes precisar.</p>
+
+          <div class="faith-meter" data-faith-meter role="meter" aria-label="Carga da Barra da Fé; a zona de acerto fica entre 41 e 59 por cento" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <span class="faith-zone" aria-hidden="true">ZONA DA FÉ</span>
+            <span class="faith-needle" data-faith-needle aria-hidden="true"></span>
+          </div>
+          <p class="game-feedback" data-meter-feedback role="status" aria-live="polite">A barra está carregando...</p>
+          <button class="game-button" type="button" data-stabilize>ATIVAR AGORA!</button>
+
+          <div class="game-reward" data-reward-three hidden>✅ NÍVEL MÁXIMO ALCANÇADO!<br><strong>📍 Local desbloqueado: <span data-event-venue>Sítio Jalisco</span></strong></div>
+          <button class="game-button game-button--secondary" type="button" data-unlock hidden>DESBLOQUEAR CONVITE</button>
+        </div></div>
+      </section>
+
+      <section class="game-screen" id="final-screen" data-screen="final" aria-labelledby="final-title" aria-hidden="true" inert hidden>
+        <div class="game-panel final-panel"><div class="game-content">
+          <div class="system-label">🏆 Missão concluída</div>
+          <div class="final-emblem" aria-hidden="true"><strong>10</strong><small>LEVEL UP</small></div>
+          <p class="final-greeting" data-final-greeting></p>
+          <h2 class="final-name" id="final-title" tabindex="-1">Heitor Noah</h2>
+          <p class="level-title">Level 10 desbloqueado!</p>
+
+          <div class="event-info-list">
+            <div class="event-info"><span aria-hidden="true">📅</span><p><strong>Data</strong><br><span data-event-date>26 de setembro de 2026</span></p></div>
+            <div class="event-info"><span aria-hidden="true">⏰</span><p><strong>Horário</strong><br><span data-event-time>14h</span></p></div>
+            <div class="event-info"><span aria-hidden="true">📍</span><p><strong>Local</strong><br><span data-event-venue>Sítio Jalisco</span></p></div>
+          </div>
+          <a class="game-button map-button" data-maps-link href="https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A">📍 ABRIR NO GOOGLE MAPS</a>
+
+          <section class="event-notes" aria-labelledby="notes-title">
+            <h3 id="notes-title">🎒 Antes de entrar nessa fase</h3>
+            <ul>
+              <li>👕 <strong data-event-dress-code>Traje despojado</strong>.</li>
+              <li>🏊 <span data-event-pool-notice>Piscina liberada para as crianças — leve roupa de banho.</span></li>
+              <li>🚫🍺 <span data-event-alcohol-notice>Não serão aceitas bebidas alcoólicas.</span></li>
+            </ul>
+          </section>
+
+          <p class="final-phrase">🎮 “Com Deus, todo jogo tem propósito.” ✨</p>
+          <p class="game-lead final-copy">Prepare-se para celebrar uma nova fase cheia de alegria, amizade e fé!</p>
+
+          <section class="noah-rsvp" data-rsvp-region aria-labelledby="rsvp-title">
+            <div class="mission-badge">✅ Confirmação de presença</div>
+            <h3 id="rsvp-title">Confirme sua participação</h3>
+            <p class="rsvp-lede">Responda até <span data-event-cutoff>15 de setembro de 2026, às 23h59</span>.</p>
+            <p class="rsvp-status" data-rsvp-status role="status" aria-live="polite">Verificando a disponibilidade da confirmação…</p>
+            <form class="rsvp-form" data-rsvp-form method="post" target="rsvp-transport">
+              <input type="hidden" name="request_id"><input type="hidden" name="evento_id"><input type="hidden" name="origem">
+              <div class="field"><label for="noah-nome">Nome do responsável ou família</label><input id="noah-nome" name="nome_responsavel" autocomplete="name" minlength="2" maxlength="120" required></div>
+              <div class="field"><label for="noah-telefone">Telefone ou WhatsApp</label><input id="noah-telefone" name="telefone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(85) 99999-9999" maxlength="24" required><small>Informe DDD e número.</small></div>
+              <fieldset class="presence-options field"><legend>Vocês estarão presentes?</legend><label class="presence-option"><input type="radio" name="presenca" value="SIM" required> Sim, estaremos</label><label class="presence-option"><input type="radio" name="presenca" value="NAO" required> Não poderemos ir</label></fieldset>
+              <div class="field" data-quantity-field hidden><label for="noah-quantidade">Quantidade total de pessoas</label><input id="noah-quantidade" name="quantidade" type="number" min="1" max="20" inputmode="numeric"></div>
+              <div class="field"><label for="noah-acompanhantes">Acompanhantes <small>(opcional)</small></label><textarea id="noah-acompanhantes" name="acompanhantes" maxlength="500" placeholder="Nomes dos acompanhantes"></textarea></div>
+              <div class="field"><label for="noah-observacao">Observação <small>(opcional)</small></label><textarea id="noah-observacao" name="observacao" maxlength="1000"></textarea></div>
+              <div class="honeypot" aria-hidden="true"><label for="noah-site">Não preencha este campo</label><input id="noah-site" name="website" tabindex="-1" autocomplete="off"></div>
+              <p class="privacy" data-privacy>Seus dados serão utilizados exclusivamente para organizar as confirmações deste evento.</p>
+              <div class="form-actions"><button class="game-button game-button--secondary" type="submit">ENVIAR CONFIRMAÇÃO</button></div>
+            </form>
+            <iframe class="rsvp-transport" data-rsvp-frame name="rsvp-transport" title="Processamento da confirmação"></iframe>
+          </section>
+
+          <button class="game-button game-button--ghost" type="button" data-restart>JOGAR NOVAMENTE</button>
+        </div></div>
+      </section>
     </main>
+
+    <noscript>
+      <section class="no-script-details">
+        <h1>Heitor Noah faz 10 anos</h1>
+        <p>26 de setembro de 2026 · 14h · Sítio Jalisco</p>
+        <p>Traje despojado. Piscina liberada para as crianças — leve roupa de banho. Não serão aceitas bebidas alcoólicas.</p>
+        <a data-maps-link href="https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A" target="_blank" rel="noopener noreferrer">Abrir no Google Maps</a>
+      </section>
+    </noscript>
+
+    <div class="game-toast" data-toast role="status" aria-live="polite"></div>
   </body>
 </html>
