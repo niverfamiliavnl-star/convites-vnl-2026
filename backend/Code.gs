@@ -56,7 +56,7 @@ function setupConfigSheet_(spreadsheet) {
     ['LOCAL', 'Sítio Jalisco'],
     ['MAPS_URL', 'https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A'],
     ['OBSERVACAO', 'Traga sua roupa de banho'],
-    ['RSVP_LIMITE', new Date('2026-09-16T02:59:00.000Z')],
+    ['RSVP_LIMITE', new Date('2026-09-21T02:59:00.000Z')],
     ['TIMEZONE', 'America/Fortaleza'],
     ['RSVP_ATIVO', true],
     ['EMAIL_POS_PRAZO', 'niver.familia.vnl@gmail.com'],

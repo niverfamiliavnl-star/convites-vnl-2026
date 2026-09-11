@@ -73,7 +73,7 @@ function vnlIsRsvpOpenAt(now, configuredLimit, active) {
   if (active !== true) return false;
   if (!now || typeof now.getTime !== 'function' || isNaN(now.getTime())) return false;
   if (!configuredLimit || typeof configuredLimit.getTime !== 'function' || isNaN(configuredLimit.getTime())) return false;
-  // A célula contém 15/09/2026 23:59; o minuto inteiro permanece válido.
+  // O minuto configurado como limite permanece integralmente válido.
   return now.getTime() < configuredLimit.getTime() + 60000;
 }
 

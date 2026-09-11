@@ -9,8 +9,8 @@ export const EVENT = Object.freeze({
   poolNotice: "Piscina liberada para as crianças — leve roupa de banho.",
   alcoholNotice: "Não serão aceitas bebidas alcoólicas.",
   timezone: "America/Fortaleza",
-  cutoffIso: "2026-09-16T03:00:00.000Z",
-  cutoffLabel: "15 de setembro de 2026, às 23h59",
+  cutoffIso: "2026-09-21T03:00:00.000Z",
+  cutoffLabel: "20 de setembro de 2026, às 23h59",
   contactEmail: "niver.familia.vnl@gmail.com",
   privacyNotice:
     "Seus dados serão utilizados exclusivamente para organizar as confirmações deste evento.",
