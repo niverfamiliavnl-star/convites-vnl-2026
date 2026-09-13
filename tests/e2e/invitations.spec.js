@@ -386,7 +386,7 @@ test("Noah mantém as três rotas e permite corrigir respostas erradas", async (
   await expect(routeB).toBeEnabled();
   await routeB.click();
   await expect(page.locator("[data-path-feedback]")).toHaveText("Rota correta! O caminho foi iluminado.");
-  await expect(page.getByText(/Horário desbloqueado: 14h/)).toBeVisible();
+  await expect(page.getByText(/Horário desbloqueado: 15h às 18h/)).toBeVisible();
   await expect(page.locator("[data-progress]")).toHaveAttribute("aria-valuenow", "63");
 });
 
@@ -762,11 +762,14 @@ test("relógio incorreto do aparelho não substitui a decisão do backend", asyn
 test("informações críticas permanecem no HTML sem JavaScript", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
-  for (const route of ["hannah", "noah", "vagner"]) {
+  for (const [route, time] of [["hannah", "09h às 12h"], ["noah", "15h às 18h"], ["vagner", "09h às 12h"]]) {
     await page.goto(`http://127.0.0.1:4173/${route}/`);
+    const visibleTime = route === "noah"
+      ? page.locator(".no-script-details p").filter({ hasText: time })
+      : page.locator("[data-event-time]").filter({ hasText: time });
     for (const [label, locator] of [
       ["data", page.getByText(/26 de setembro de 2026/i)],
-      ["horário", page.getByText(/14h/i)],
+      ["horário", visibleTime],
       ["local", page.getByText(/Sítio Geladão/i)],
       ["roupa de banho", page.getByText(/roupa de banho/i)],
     ]) {
@@ -775,6 +778,22 @@ test("informações críticas permanecem no HTML sem JavaScript", async ({ brows
     await expect(page.locator("[data-maps-link]").first()).toHaveAttribute("href", "https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8");
   }
   await context.close();
+});
+
+test("horário é selecionado pela origem sem alterar os dados comuns", async ({ page }) => {
+  await mockBackend(page);
+  for (const [route, time] of [["hannah", "09h às 12h"], ["noah", "15h às 18h"], ["vagner", "09h às 12h"]]) {
+    await page.goto(`/${route}/`);
+    const eventTimes = page.locator("[data-event-time]");
+    expect(await eventTimes.count()).toBeGreaterThan(0);
+    expect(await eventTimes.evaluateAll(
+      (nodes, expectedTime) => nodes.every((node) => node.textContent === expectedTime),
+      time,
+    )).toBe(true);
+    await expect(page.locator("[data-event-venue]").first()).toHaveText("Sítio Geladão");
+    await expect(page.locator("[data-maps-link]").first()).toHaveAttribute("href", "https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8");
+    await expect(page.locator("[data-event-cutoff]").first()).toHaveText("20 de setembro de 2026, às 23h59");
+  }
 });
 
 test("sem endpoint mantém informações e bloqueia o envio", async ({ page }) => {

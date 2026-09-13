@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync, statSync } from "node:fs";
+import { EVENT, EVENT_TIMES, getEventTime } from "../../shared/event-config.js";
 
 const read = (path) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 
@@ -45,6 +46,25 @@ describe("contratos do merge da Hannah", () => {
       expect(html).toContain("Sítio Geladão");
       expect(html).toContain("https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8");
     }
+  });
+
+  it("mantém dados comuns únicos e horários imutáveis por origem", () => {
+    const backend = read("backend/Code.gs");
+    expect(EVENT).not.toHaveProperty("timeLabel");
+    expect(EVENT.venue).toBe("Sítio Geladão");
+    expect(EVENT.mapsUrl).toBe("https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8");
+    expect(EVENT.cutoffLabel).toBe("20 de setembro de 2026, às 23h59");
+    expect(EVENT_TIMES).toEqual({
+      HANNAH: { timeLabel: "09h às 12h", startTime: "09:00", endTime: "12:00" },
+      VAGNER: { timeLabel: "09h às 12h", startTime: "09:00", endTime: "12:00" },
+      NOAH: { timeLabel: "15h às 18h", startTime: "15:00", endTime: "18:00" },
+    });
+    expect(Object.isFrozen(EVENT_TIMES)).toBe(true);
+    expect(Object.values(EVENT_TIMES).every(Object.isFrozen)).toBe(true);
+    expect(getEventTime("HANNAH").timeLabel).toBe("09h às 12h");
+    expect(getEventTime("VAGNER").timeLabel).toBe("09h às 12h");
+    expect(getEventTime("NOAH").timeLabel).toBe("15h às 18h");
+    expect(backend).toContain("['HORARIO', 'Hannah/Vagner: 09:00–12:00 | Noah: 15:00–18:00']");
   });
 });
 

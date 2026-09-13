@@ -52,7 +52,7 @@ function setupConfigSheet_(spreadsheet) {
     ['CHAVE', 'VALOR'],
     ['EVENTO_ID', 'VNL_2026'],
     ['DATA_EVENTO', new Date('2026-09-26T03:00:00.000Z')],
-    ['HORARIO', '14:00'],
+    ['HORARIO', 'Hannah/Vagner: 09:00–12:00 | Noah: 15:00–18:00'],
     ['LOCAL', 'Sítio Geladão'],
     ['MAPS_URL', 'https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8'],
     ['OBSERVACAO', 'Traga sua roupa de banho'],

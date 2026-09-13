@@ -1,7 +1,6 @@
 export const EVENT = Object.freeze({
   id: "VNL_2026",
   dateLabel: "26 de setembro de 2026",
-  timeLabel: "14h",
   venue: "Sítio Geladão",
   mapsUrl: "https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8",
   note: "Traga sua roupa de banho",
@@ -15,6 +14,18 @@ export const EVENT = Object.freeze({
   privacyNotice:
     "Seus dados serão utilizados exclusivamente para organizar as confirmações deste evento.",
 });
+
+export const EVENT_TIMES = Object.freeze({
+  HANNAH: Object.freeze({ timeLabel: "09h às 12h", startTime: "09:00", endTime: "12:00" }),
+  VAGNER: Object.freeze({ timeLabel: "09h às 12h", startTime: "09:00", endTime: "12:00" }),
+  NOAH: Object.freeze({ timeLabel: "15h às 18h", startTime: "15:00", endTime: "18:00" }),
+});
+
+export function getEventTime(origin) {
+  const eventTime = EVENT_TIMES[origin];
+  if (!eventTime) throw new TypeError(`Origem sem horário configurado: ${origin}`);
+  return eventTime;
+}
 
 export const RSVP = Object.freeze({
   // Endpoint público do Web App de produção. IDs de planilha permanecem somente no projeto vinculado.

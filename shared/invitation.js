@@ -1,4 +1,4 @@
-import { EVENT, RSVP, hasConfiguredEndpoint } from "./event-config.js";
+import { EVENT, RSVP, getEventTime, hasConfiguredEndpoint } from "./event-config.js";
 
 const RESULT_TYPE = "VNL_RSVP_RESULT";
 const VALID_CODES = new Set(["STATUS", "RECORDED", "CLOSED", "INVALID", "RATE_LIMITED", "BUSY", "ERROR"]);
@@ -7,9 +7,10 @@ function setText(selector, value) {
   document.querySelectorAll(selector).forEach((node) => { node.textContent = value; });
 }
 
-function populateEventDetails() {
+function populateEventDetails(origin) {
+  const eventTime = getEventTime(origin);
   setText("[data-event-date]", EVENT.dateLabel);
-  setText("[data-event-time]", EVENT.timeLabel);
+  setText("[data-event-time]", eventTime.timeLabel);
   setText("[data-event-venue]", EVENT.venue);
   setText("[data-event-note]", EVENT.note);
   setText("[data-event-dress-code]", EVENT.dressCode);
@@ -86,7 +87,7 @@ function normalizeClientPhone(value) {
 }
 
 export function initInvitation({ origin }) {
-  populateEventDetails();
+  populateEventDetails(origin);
 
   const region = document.querySelector("[data-rsvp-region]");
   const form = document.querySelector("[data-rsvp-form]");
