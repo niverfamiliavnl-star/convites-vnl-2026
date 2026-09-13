@@ -357,6 +357,9 @@
   box-shadow: 0 16px 38px rgba(0, 0, 0, .2);
 }
 
+.celebration-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.celebration-actions .map-link { flex: 1 1 220px; }
+
 .vagner-verse {
   display: flex;
   width: min(900px, calc(100% - 32px));

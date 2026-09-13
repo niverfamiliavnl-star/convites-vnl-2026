@@ -796,6 +796,40 @@ test("horário é selecionado pela origem sem alterar os dados comuns", async ({
   }
 });
 
+test("arquivos de calendário ficam acessíveis ao lado do Maps", async ({ page }) => {
+  const consoleErrors = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  await mockBackend(page);
+
+  for (const [route, file] of [
+    ["hannah", "hannah-7-anos.ics"],
+    ["vagner", "vagner-42-anos.ics"],
+    ["noah", "noah-10-anos.ics"],
+  ]) {
+    await page.goto(`/${route}/`);
+    if (route === "hannah" || route === "vagner") {
+      await page.getByRole("button", { name: "Pular introdução" }).click();
+    } else {
+      await finishNoahGame(page);
+    }
+
+    const calendarLink = page.getByRole("link", { name: /Adicionar ao calendário/i });
+    await expect(calendarLink).toBeVisible();
+    await expect(calendarLink).toHaveAttribute("href", `./assets/${file}`);
+    await expect(page.locator("[data-maps-link]").first()).toBeVisible();
+
+    const response = await page.request.get(new URL(`./assets/${file}`, page.url()).href);
+    expect(response.status()).toBe(200);
+    expect(response.headers()["content-type"]).toContain("text/calendar");
+    expect(await response.text()).toContain("BEGIN:VCALENDAR");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+  }
+
+  expect(consoleErrors).toEqual([]);
+});
+
 test("sem endpoint mantém informações e bloqueia o envio", async ({ page }) => {
   const disconnectedConfig = configSource.replace(
     'endpoint: "https://script.google.com/macros/s/test-deployment/exec"',
