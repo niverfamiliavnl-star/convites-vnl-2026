@@ -262,8 +262,8 @@ test("Hannah permite pular a introdução e exibe as informações", async ({ pa
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Pular introdução" }).click();
   await expect(page.getByRole("heading", { name: "Hannah Lis faz 7 anos" })).toBeVisible();
-  await expect(page.getByText("Sítio Jalisco").first()).toBeVisible();
-  await expect(page.getByRole("link", { name: /Como chegar/ }).first()).toHaveAttribute("href", "https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A");
+  await expect(page.getByText("Sítio Geladão").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Como chegar/ }).first()).toHaveAttribute("href", "https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8");
   await page.getByRole("button", { name: "Confirmar presença" }).click();
   await expect(page.locator("[data-sheet]")).toBeVisible();
   await expect(page.locator("[data-sheet]").getByRole("button", { name: "Confirmar presença" })).toBeEnabled();
@@ -416,7 +416,7 @@ test("Noah permite erro, nova tentativa e acerto na Barra da Fé", async ({ page
     return true;
   });
   await expect(page.locator("[data-meter-feedback]")).toHaveText("Acerto perfeito! Nível máximo alcançado.");
-  await expect(page.getByText(/Local desbloqueado: Sítio Jalisco/)).toBeVisible();
+  await expect(page.getByText(/Local desbloqueado: Sítio Geladão/)).toBeVisible();
   await expect(page.locator("[data-progress]")).toHaveAttribute("aria-valuenow", "91");
 });
 
@@ -767,12 +767,12 @@ test("informações críticas permanecem no HTML sem JavaScript", async ({ brows
     for (const [label, locator] of [
       ["data", page.getByText(/26 de setembro de 2026/i)],
       ["horário", page.getByText(/14h/i)],
-      ["local", page.getByText(/Sítio Jalisco/i)],
+      ["local", page.getByText(/Sítio Geladão/i)],
       ["roupa de banho", page.getByText(/roupa de banho/i)],
     ]) {
       expect(await locator.evaluateAll((nodes) => nodes.some((node) => node.checkVisibility())), `${route}: ${label}`).toBe(true);
     }
-    await expect(page.locator("[data-maps-link]").first()).toHaveAttribute("href", "https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A");
+    await expect(page.locator("[data-maps-link]").first()).toHaveAttribute("href", "https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8");
   }
   await context.close();
 });
@@ -788,7 +788,7 @@ test("sem endpoint mantém informações e bloqueia o envio", async ({ page }) =
   }));
   await page.goto("/hannah/");
   await page.getByRole("button", { name: "Pular introdução" }).click();
-  await expect(page.getByText("Sítio Jalisco").first()).toBeVisible();
+  await expect(page.getByText("Sítio Geladão").first()).toBeVisible();
   await page.getByRole("button", { name: "Confirmar presença" }).click();
   await expect(page.getByText("A confirmação ainda não está conectada. Tente novamente mais tarde.")).toBeVisible();
   await expect(page.locator("[data-sheet]").getByRole("button", { name: "Confirmar presença" })).toBeDisabled();

@@ -27,6 +27,25 @@ describe("contratos do merge da Hannah", () => {
     expect(config).not.toContain('endpoint: "__');
     expect(config).not.toContain("test-deployment");
   });
+
+  it("mantém local e Maps canônicos nos três convites e nos defaults", () => {
+    const files = [
+      "shared/event-config.js",
+      "hannah/index.html",
+      "vagner/index.html",
+      "noah/index.html",
+      "backend/Code.gs",
+    ].map(read);
+    const activeSource = files.join("\n");
+    expect(activeSource).toContain("Sítio Geladão");
+    expect(activeSource).toContain("https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8");
+    expect(activeSource).not.toContain("Sítio Jalisco");
+    expect(activeSource).not.toContain("https://maps.app.goo.gl/N6HcsDhRMRoWT4E1A");
+    for (const html of files.slice(1, 4)) {
+      expect(html).toContain("Sítio Geladão");
+      expect(html).toContain("https://maps.app.goo.gl/ZvDD1xucfFxfN2iw8");
+    }
+  });
 });
 
 describe("contratos do jogo canônico do Noah", () => {
